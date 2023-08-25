@@ -3,9 +3,11 @@
 
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const { configure } = require("@rise4fun/docusaurus-plugin-rise4fun");
+
 
 /** @type {import('@docusaurus/types').Config} */
-const config = {
+const docusaurusConfig = {
   title: 'CSE 8A',
   tagline: 'Interactive textbook for CSE 8A with a built-in AI tutor',
   favicon: 'img/favicon.ico',
@@ -64,7 +66,7 @@ const config = {
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: 'My Site',
+        title: 'CSE 8A',
         logo: {
           alt: 'My Site Logo',
           src: 'img/logo.svg',
@@ -74,9 +76,9 @@ const config = {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
-            label: 'Tutorial',
+            label: 'Textbook',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
+          {to: '/playground', label: 'Playground', position: 'left'},
           {
             href: 'https://github.com/facebook/docusaurus',
             label: 'GitHub',
@@ -91,8 +93,8 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Tutorial',
-                to: '/docs/intro',
+                label: 'Textbook',
+                to: '/docs/02-conditionals/if-elif-else',
               },
             ],
           },
@@ -117,8 +119,8 @@ const config = {
             title: 'More',
             items: [
               {
-                label: 'Blog',
-                to: '/blog',
+                label: 'Playground',
+                to: '/playground',
               },
               {
                 label: 'GitHub',
@@ -135,5 +137,10 @@ const config = {
       },
     }),
 };
+
+const config = configure(
+  docusaurusConfig, 
+  // rise4fun config {}
+  )
 
 module.exports = config;
