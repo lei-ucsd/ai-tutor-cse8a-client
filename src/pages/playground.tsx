@@ -14,6 +14,7 @@ export default function Playground() {
         }}>
         <p>
           Edit <code>pages/playground.tsx</code> and save to reload.
+          TODO: Python editor, execution via Pyodide
         </p>
       </div>
     </Layout>

@@ -43,8 +43,8 @@ const docusaurusConfig = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          // editUrl:
+          //   'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -71,22 +71,10 @@ const docusaurusConfig = {
             position: 'left',
             label: 'Textbook',
           },
-          // {
-          //   type: 'docSidebar',
-          //   sidebarId: 'tutorialSidebar',
-          //   position: 'left',
-          //   label: 'Playground',
-          // },
-          // {
-          //   type: 'docSidebar',
-          //   sidebarId: 'tutorialSidebar',
-          //   position: 'left',
-          //   label: 'Tutor',
-          // },
           {to: '/playground', label: 'Playground', position: 'left'},
           {to: '/tutor', label: 'Tutor', position: 'left'},
           {
-            href: 'https://github.com/facebook/docusaurus',
+            href: 'https://github.com/lei-ucsd/ai-tutor-cse8a-client',
             label: 'GitHub',
             position: 'right',
           },
@@ -96,28 +84,19 @@ const docusaurusConfig = {
         style: 'dark',
         links: [
           {
-            title: 'Docs',
+            title: 'Contents',
             items: [
               {
                 label: 'Textbook',
                 to: '/docs/02-conditionals/if-elif-else',
               },
-            ],
-          },
-          {
-            title: 'Community',
-            items: [
               {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+                label: 'Playground',
+                to: '/playground'
               },
               {
-                label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
-              },
-              {
-                label: 'Twitter',
-                href: 'https://twitter.com/docusaurus',
+                label: 'Tutor',
+                to: '/tutor'
               },
             ],
           },
@@ -125,17 +104,13 @@ const docusaurusConfig = {
             title: 'More',
             items: [
               {
-                label: 'Playground',
-                to: '/playground',
-              },
-              {
                 label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
+                href: 'https://github.com/lei-ucsd/ai-tutor-cse8a-client',
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} LEI@UCSD. Built with <a href="https://docusaurus.io">Docusaurus</a> and <a href="https://microsoft.github.io/docusaurus-plugins/">rise4fun</a>.`,
       },
       prism: {
         theme: lightCodeTheme,
@@ -146,7 +121,7 @@ const docusaurusConfig = {
 
 const config = configure(
   docusaurusConfig, 
-  // rise4fun config {}
+  // TODO: rise4fun config {}
   )
 
 module.exports = config;
