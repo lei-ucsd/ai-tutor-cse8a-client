@@ -13,15 +13,15 @@ const docusaurusConfig = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://your-docusaurus-test-site.com',
+  url: 'https://lei-ucsd.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/ai-tutor-cse8a-client/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'lei-ucsd', // Usually your GitHub org/user name.
-  projectName: 'ai-tutor-cse8a', // Usually your repo name.
+  projectName: 'ai-tutor-cse8a-client', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -88,7 +88,7 @@ const docusaurusConfig = {
             items: [
               {
                 label: 'Textbook',
-                to: '/docs/02-conditionals/if-elif-else',
+                to: '/docs/category/section-2-conditionals' // TODO update
               },
               {
                 label: 'Playground',
