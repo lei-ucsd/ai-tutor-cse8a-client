@@ -1,6 +1,5 @@
 import React from "react";
 import { Avatar } from "@mui/material";
-import { deepOrange } from "@mui/material/colors";
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 
 export function MessageOther(props) {
