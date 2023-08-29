@@ -1,6 +1,6 @@
 import React from 'react'
 import SendIcon from '@mui/icons-material/Send';
-import { TextField, Button } from '@mui/material'
+import { TextField, IconButton } from '@mui/material'
 import { useState } from 'react';
 
 
@@ -19,9 +19,9 @@ export function TextInput({ onAddMsg }) {
                     onChange={(e) => setValue(e.target.value)}
                 // margin="normal"
                 />
-                <Button
-                    variant="contained"
-                    color="primary"
+                <IconButton
+                    // variant="contained"
+                    sx={{color: "var(--ifm-color-primary"}}
                     className="button"
                     onClick={
                         () => {
@@ -30,8 +30,10 @@ export function TextInput({ onAddMsg }) {
                         }
                     }
                 >
-                    <SendIcon />
-                </Button>
+                    <SendIcon sx={{
+                        color: "var(--ifm-color-primary)"
+                        }} />
+                </IconButton>
             </div>
         </>
     )

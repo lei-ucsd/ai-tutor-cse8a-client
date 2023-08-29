@@ -29,12 +29,12 @@ const initMsgs = [
     //     displayName="AI Tutor (Fake)"
     //     avatarDisp={false}
     // />,
-    // <MessageOther
-    //     message="Welcome to Chat! Welcome to Chat! Welcome to Chat! Welcome to Chat! Welcome to Chat! Welcome to Chat! "
-    //     timestamp="MM/DD 00:00"
-    //     displayName="AI Tutor (Fake)"
-    //     avatarDisp={true}
-    // />
+    <MessageOther
+        message="Hello! I am your personalized AI tutor. Let me help you with any question you might have for this course."
+        timestamp=""
+        displayName="AI Tutor"
+        avatarDisp={true}
+    />
 ]
 
 export default function ChatInterface() {
@@ -99,24 +99,10 @@ export default function ChatInterface() {
             setShowSpinner(false);
         }
 
-        // setTimeout(() => {
-        //     setMsgs(
-        //         [
-        //             <MessageOther
-        //                 message={"AI is offline at the moment."}
-        //                 timestamp="MM/DD 00:00"
-        //                 displayName="AI Tutor (Fake)"
-        //                 avatarDisp={true}
-        //             />,
-        //             ...newMsgs
-        //         ]
-        //     );
-        //     setShowSpinner(false);
-        // }, 5000);
     }
     return (
         <div className="chatContainer">
-            <Paper className="paper">
+            <Paper className="paper" elevation={0}>
                 <Paper id="style-1" className="messagesBody">
                     {showSpinner ? spinner : <></>}
                     {msgs}
