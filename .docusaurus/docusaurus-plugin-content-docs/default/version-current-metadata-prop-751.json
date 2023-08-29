@@ -1,0 +1,37 @@
+{
+  "pluginId": "default",
+  "version": "current",
+  "label": "Next",
+  "banner": null,
+  "badge": false,
+  "noIndex": false,
+  "className": "docs-version-current",
+  "isLast": true,
+  "docsSidebars": {
+    "tutorialSidebar": [
+      {
+        "type": "category",
+        "label": "Section 2: Conditionals",
+        "collapsible": true,
+        "collapsed": true,
+        "items": [
+          {
+            "type": "link",
+            "label": "2.2 if, elif, else",
+            "href": "/ai-tutor-cse8a-client/docs/conditionals/if-elif-else",
+            "docId": "conditionals/if-elif-else"
+          }
+        ],
+        "href": "/ai-tutor-cse8a-client/docs/category/section-2-conditionals"
+      }
+    ]
+  },
+  "docs": {
+    "conditionals/if-elif-else": {
+      "id": "conditionals/if-elif-else",
+      "title": "2.2 if, elif, else",
+      "description": "if statements",
+      "sidebar": "tutorialSidebar"
+    }
+  }
+}

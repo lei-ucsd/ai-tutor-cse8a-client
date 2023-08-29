@@ -1,0 +1,22 @@
+{
+  "unversionedId": "conditionals/if-elif-else",
+  "id": "conditionals/if-elif-else",
+  "title": "2.2 if, elif, else",
+  "description": "if statements",
+  "source": "@site/docs/02-conditionals/if-elif-else.md",
+  "sourceDirName": "02-conditionals",
+  "slug": "/conditionals/if-elif-else",
+  "permalink": "/ai-tutor-cse8a-client/docs/conditionals/if-elif-else",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Section 2: Conditionals",
+    "permalink": "/ai-tutor-cse8a-client/docs/category/section-2-conditionals"
+  }
+}

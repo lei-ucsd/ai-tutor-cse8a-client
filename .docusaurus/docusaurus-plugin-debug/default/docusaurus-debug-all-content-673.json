@@ -1,0 +1,115 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "loadedVersions": [
+        {
+          "versionName": "current",
+          "label": "Next",
+          "banner": null,
+          "badge": false,
+          "noIndex": false,
+          "className": "docs-version-current",
+          "path": "/ai-tutor-cse8a-client/docs",
+          "tagsPath": "/ai-tutor-cse8a-client/docs/tags",
+          "isLast": true,
+          "routePriority": -1,
+          "sidebarFilePath": "/Users/lisa/projects/ai-tutor-cse8a/sidebars.js",
+          "contentPath": "/Users/lisa/projects/ai-tutor-cse8a/docs",
+          "contentPathLocalized": "/Users/lisa/projects/ai-tutor-cse8a/i18n/en/docusaurus-plugin-content-docs/current",
+          "docs": [
+            {
+              "unversionedId": "conditionals/if-elif-else",
+              "id": "conditionals/if-elif-else",
+              "title": "2.2 if, elif, else",
+              "description": "if statements",
+              "source": "@site/docs/02-conditionals/if-elif-else.md",
+              "sourceDirName": "02-conditionals",
+              "slug": "/conditionals/if-elif-else",
+              "permalink": "/ai-tutor-cse8a-client/docs/conditionals/if-elif-else",
+              "draft": false,
+              "tags": [],
+              "version": "current",
+              "sidebarPosition": 1,
+              "frontMatter": {
+                "sidebar_position": 1
+              },
+              "sidebar": "tutorialSidebar",
+              "previous": {
+                "title": "Section 2: Conditionals",
+                "permalink": "/ai-tutor-cse8a-client/docs/category/section-2-conditionals"
+              }
+            }
+          ],
+          "drafts": [],
+          "sidebars": {
+            "tutorialSidebar": [
+              {
+                "type": "category",
+                "label": "Section 2: Conditionals",
+                "collapsible": true,
+                "collapsed": true,
+                "items": [
+                  {
+                    "type": "doc",
+                    "id": "conditionals/if-elif-else"
+                  }
+                ],
+                "link": {
+                  "type": "generated-index",
+                  "description": "Learn about conditional expressions, if, elif, and else.",
+                  "slug": "/category/section-2-conditionals",
+                  "permalink": "/ai-tutor-cse8a-client/docs/category/section-2-conditionals"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "docusaurus-plugin-content-blog": {
+    "default": {
+      "blogSidebarTitle": "Recent posts",
+      "blogPosts": [],
+      "blogListPaginated": [],
+      "blogTags": {},
+      "blogTagsListPath": "/ai-tutor-cse8a-client/blog/tags",
+      "blogTagsPaginated": []
+    }
+  },
+  "docusaurus-plugin-content-pages": {
+    "default": [
+      {
+        "type": "jsx",
+        "permalink": "/ai-tutor-cse8a-client/",
+        "source": "@site/src/pages/index.tsx"
+      },
+      {
+        "type": "mdx",
+        "permalink": "/ai-tutor-cse8a-client/markdown-page",
+        "source": "@site/src/pages/markdown-page.md",
+        "title": "Markdown page example",
+        "description": "You don't need React to write simple standalone pages.",
+        "frontMatter": {
+          "title": "Markdown page example"
+        }
+      },
+      {
+        "type": "jsx",
+        "permalink": "/ai-tutor-cse8a-client/playground",
+        "source": "@site/src/pages/playground.tsx"
+      },
+      {
+        "type": "jsx",
+        "permalink": "/ai-tutor-cse8a-client/tutor",
+        "source": "@site/src/pages/tutor.tsx"
+      }
+    ]
+  },
+  "docusaurus-plugin-debug": {},
+  "docusaurus-theme-classic": {},
+  "docusaurus-theme-mermaid": {},
+  "@rise4fun/docusaurus-theme-codesandbox-button": {},
+  "docusaurus-bootstrap-plugin": {},
+  "docusaurus-mdx-fallback-plugin": {}
+}
