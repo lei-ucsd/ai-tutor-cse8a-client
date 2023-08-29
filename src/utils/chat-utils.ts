@@ -3,17 +3,25 @@ import { mainURL, getResponseURL, ChatRequest, ChatResponse } from './index';
 
 
 export async function getResponse(req: ChatRequest): Promise<ChatResponse | undefined> {
-    const url = `${mainURL}${getResponseURL}`;
+    const {user, password, message, timestamp, history} = req;
+
+    let url = `${mainURL}${getResponseURL}?&user=${escapeHTML(user)}&password=${escapeHTML(password)}&message=${escapeHTML(message)}`;
+    if (timestamp) {
+        url += `&timestamp=${timestamp}`;
+    }
+    if (history) {
+        url += `&history=${escapeHTML(history)}`;
+    }
+
 
     try {
         const response = await axios.post(url, {
-            data: req,
+            // data : req, // {user: xxx, password: xxx, message: xxx, timestamp: xxx, history: xxx}
             headers: {
-                "Access-Control-Allow-Origin": "*",
+                // "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET,POST",
-                // "Access-Control-Allow-Headers": "Access-Control-Allow-Methods"
-                    // "Access-Control-Allow-Headers, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Origin, Authorization, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers",
-            },
+                "Access-Control-Allow-Headers": "Access-Control-Allow-Methods, Access-Control-Allow-Origin",
+            }
         });
         return JSON.parse(response.data);
 
@@ -24,3 +32,15 @@ export async function getResponse(req: ChatRequest): Promise<ChatResponse | unde
     }
 
 }
+
+export function escapeHTML(text: string) {
+    if (!text) {
+      console.error("No text given")
+      return
+    }
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\?/g, "&quest;")
+  }

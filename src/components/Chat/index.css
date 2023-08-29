@@ -21,7 +21,7 @@
 
 .chatContainer {
     width: 100vw;
-    height: 100vh;
+    height: 80vh;
     display: flex;
     align-items: center;
     justify-content: center
@@ -29,9 +29,9 @@
 
 .messagesBody {
     width: calc(100% - 20px);
-    margin: 10;
+    /* margin: 90px 1vw; */
     overflow-y: scroll;
-    height: calc(100% - 80px);
+    height: calc(100% - 90px);
     display: flex;
     flex-direction: column-reverse;
 }
