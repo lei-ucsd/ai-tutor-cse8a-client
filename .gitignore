@@ -1,0 +1,7 @@
+node_modules/
+build/
+docusaurus
+.docusaurus
+.DS_Store
+*.log
+.yarn/cache
