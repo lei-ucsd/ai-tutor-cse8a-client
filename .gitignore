@@ -5,3 +5,5 @@ docusaurus
 .DS_Store
 *.log
 .yarn/cache
+*.streamlit
+*/__pycache__
