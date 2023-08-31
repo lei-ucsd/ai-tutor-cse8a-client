@@ -17,7 +17,7 @@ openai_api_key = st.secrets['OPENAI_API_KEY']
 
 curr_ques_idx = None
 to_exit = False
-eval_mode = False
+
 
 # index_gen = get_random_idx(len(TEXTBOOK_QUESTIONS))
 
@@ -30,19 +30,20 @@ teacher_template = PromptTemplate(input_variables=["question", "correct_answer",
 
 evaluator_chain = LLMChain(llm=evaluator, prompt=evaluator_template)
 
-teacher_memory = ExtendedConversationBufferMemory(memory_key="chat_history", extra_variables=["question", "correct_answer", "student_answer", "grader_feedback"], human_prefix="Student", ai_prefix="Tutor")
-teacher_chain = LLMChain(llm=evaluator, prompt=teacher_template, memory=teacher_memory, verbose=True)
-
 with st.sidebar:
     if prompt := st.text_input("Index of question", key="question_index", type="default"):
         curr_ques_idx = int(prompt)
-        st.session_state["question"] = TEXTBOOK_QUESTIONS[curr_ques_idx]
-        st.session_state["correct_answer"] = TEXTBOOK_ANSWERS[curr_ques_idx]
 
-        st.session_state["messages"] = [{"role": "assistant", "content": st.session_state["question"]}]
+        if "curr_ques_idx" not in st.session_state or st.session_state["curr_ques_idx"] != curr_ques_idx:
+            st.session_state["curr_ques_idx"] = curr_ques_idx
+            st.session_state["question"] = TEXTBOOK_QUESTIONS[curr_ques_idx]
+            st.session_state["correct_answer"] = TEXTBOOK_ANSWERS[curr_ques_idx]
 
-        eval_mode = True
+            st.session_state["messages"] = [{"role": "assistant", "content": st.session_state["question"]}]
+            st.session_state["eval_mode"] = True
 
+            teacher_memory = ExtendedConversationBufferMemory(memory_key="chat_history", extra_variables=["question", "correct_answer", "student_answer", "grader_feedback"], human_prefix="Student", ai_prefix="Tutor")
+            st.session_state["teacher_chain"] = LLMChain(llm=evaluator, prompt=teacher_template, memory=teacher_memory, verbose=True)
 
 st.title("NANO 11: Chapter Evaluation and Explanation")
 if "messages" not in st.session_state:
@@ -55,7 +56,8 @@ if prompt := st.chat_input():
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
 
-    if eval_mode:
+    if st.session_state["eval_mode"]:
+        print("IN EVAL MODE")
         question = st.session_state["question"]
         correct_answer = st.session_state["correct_answer"]
         st.session_state["student_answer"] = prompt
@@ -70,9 +72,12 @@ if prompt := st.chat_input():
         st.chat_message("C").write(st.session_state["correct_answer"])
 
         st.session_state['feedback'] = issues['text']
-        eval_mode = False
+        st.session_state["eval_mode"] = False
+        print(st.session_state["eval_mode"])
         prompt = "Let's review"
 
+    print("IN TEACHER MODE")
+    teacher_chain = st.session_state["teacher_chain"]
     question = st.session_state["question"]
     correct_answer = st.session_state["correct_answer"]
     student_answer = st.session_state["student_answer"]
