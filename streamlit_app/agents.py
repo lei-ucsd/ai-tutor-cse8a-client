@@ -10,6 +10,7 @@ class GenericAgent:
 		self.assistant_name = assistant_name
 		self.stream = stream
 		self.functions = functions
+		self.function_names = [f["name"] for f in functions] if functions else None
 
 		self.messages = [{'role': 'system', 'content': system_prompt}]
 
@@ -23,10 +24,32 @@ class GenericAgent:
 		else:
 			response = openai.ChatCompletion.create(model=self.model_name, messages=self.messages, temperature=self.temperature, stream=self.stream)
 
-		message = response.choices[0].message
-		self.messages.append(message)
+		final_message = None
 
-		return message
+		for choice in response.choices:
+			message = choice.message
+
+			if 'function_call' in message:
+				if not self.function_names:
+					continue
+
+				function_name = message['function_call']['name']
+
+				if function_name in self.function_names:
+					final_message = message
+				else:
+					continue
+			else:
+				final_message = message
+				break
+
+
+		if final_message is None:
+			raise ValueError("OpenAI returned an invalid function call request")
+
+		self.messages.append(final_message)
+
+		return final_message
 
 
 	def clear_chat_history(self):
