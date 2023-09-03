@@ -12,6 +12,8 @@ def get_random_idx(num_questions):
 	for idx in indices:
 		yield idx
 
+	raise IndexError("Out of elements")
+
 # class ExtendedConversationBufferMemory(ConversationBufferMemory):
 #     extra_variables:List[str] = []
 

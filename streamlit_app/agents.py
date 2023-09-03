@@ -45,6 +45,7 @@ class GenericAgent:
 
 
 		if final_message is None:
+			print(response.choices[0].message)
 			raise ValueError("OpenAI returned an invalid function call request")
 
 		self.messages.append(final_message)
