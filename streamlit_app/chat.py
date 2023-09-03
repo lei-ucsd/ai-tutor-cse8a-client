@@ -31,12 +31,13 @@ WELCOME_MESSAGE = get_welcome_message()
 # Create LLMChain
 
 def exit():
-    with open(f"{uuid.uuid4()}.json", 'w') as file:
+    with open(f"logs/{uuid.uuid4()}.json", 'w') as file:
         json.dump(st.session_state["logs"], file)
     st.chat_message("assistant").write("Goodbye! If you would like to try again, please refersh the browser")
 
 def get_teacher():
-    st.chat_message('I').write("Teacher Called")
+    # st.chat_message('I').write("Teacher Called")
+    st.session_state["logs"].append({"role": "I", "content": "Teacher Called"})
     question = st.session_state["question"]
     correct_answer = st.session_state["correct_answer"]
     student_answer = st.session_state["student_answer"]
@@ -49,11 +50,13 @@ def get_teacher():
 
     grader_feedback = evaluator("Give a list of the errors, If there are no major errors simply say No Errors:")['content']
 
-    st.chat_message("E").write(grader_feedback)
-    st.chat_message("C").write(correct_answer)
+    # st.chat_message("E").write(grader_feedback)
+    # st.chat_message("C").write(correct_answer)
+    st.session_state["logs"].append({"role": "E", "content": grader_feedback})
+    st.session_state["logs"].append({"role": "C", "content": correct_answer})
 
-    st.session_state["messages"].append({"role": "E", "content": grader_feedback})
-    st.session_state["messages"].append({"role": "C", "content": correct_answer})
+    # st.session_state["messages"].append({"role": "E", "content": grader_feedback})
+    # st.session_state["messages"].append({"role": "C", "content": correct_answer})
 
     teacher_functions = [
         {
@@ -76,6 +79,7 @@ def get_teacher():
     st.session_state["teacher"] = teacher
 
     st.session_state["messages"].append(first_response)
+    st.session_state["logs"].append(first_response)
     st.chat_message("assistant").write(first_response['content'])
 
 
@@ -128,48 +132,49 @@ def main():
         init_session()
 
     if prompt := st.chat_input("Input your response"):
-        for msg in st.session_state.messages:
-            st.chat_message(msg["role"]).write(msg["content"])
+        with st.spinner("Please wait for the assitant's reply"):
+            for msg in st.session_state.messages:
+                st.chat_message(msg["role"]).write(msg["content"])
 
-        st.session_state["logs"].append({"role": "user", "content": prompt})
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        st.chat_message("user").write(prompt)
+            st.session_state["logs"].append({"role": "user", "content": prompt})
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            st.chat_message("user").write(prompt)
 
-        if st.session_state["mode"] == "proctor":
-            try:
-                response = st.session_state["proctor"](prompt)
-            except ValueError:
-                st.chat_message("I").write(f"Something horrible happened:( Please refresh your browser.")
+            if st.session_state["mode"] == "proctor":
+                try:
+                    response = st.session_state["proctor"](prompt)
+                except ValueError:
+                    st.chat_message("I").write(f"Something horrible happened:( Please refresh your browser.")
 
-            if 'function_call' in response:
-                function_name = response['function_call']['name']
+                if 'function_call' in response:
+                    function_name = response['function_call']['name']
 
-                if function_name == 'get_teacher':
-                    st.session_state['student_answer'] = prompt
-                    get_teacher()
-                elif function_name == 'exit':
-                    exit()
+                    if function_name == 'get_teacher':
+                        st.session_state['student_answer'] = prompt
+                        get_teacher()
+                    elif function_name == 'exit':
+                        exit()
+                else:
+                    st.session_state.messages.append(response)
+                    st.session_state["logs"].append(msg)
+                    st.chat_message("assistant").write(response['content'])
+
             else:
-                st.session_state.messages.append(response)
-                st.session_state["logs"].append(msg)
-                st.chat_message("assistant").write(response['content'])
+                try:
+                    response = st.session_state["teacher"](prompt)
+                except ValueError:
+                    st.chat_message("I").write(f"Something horrible happened:( Please refresh your browser.")
 
-        else:
-            try:
-                response = st.session_state["teacher"](prompt)
-            except ValueError:
-                st.chat_message("I").write(f"Something horrible happened:( Please refresh your browser.")
-
-            if 'function_call' in response:
-                function_name = response['function_call']['name']
-                if function_name == 'get_proctor':
-                    get_proctor()
-                elif function_name == 'exit':
-                    exit()
-            else:
-                st.session_state.messages.append(response)
-                st.session_state["logs"].append(msg)
-                st.chat_message("assistant").write(response['content'])
+                if 'function_call' in response:
+                    function_name = response['function_call']['name']
+                    if function_name == 'get_proctor':
+                        get_proctor()
+                    elif function_name == 'exit':
+                        exit()
+                else:
+                    st.session_state.messages.append(response)
+                    st.session_state["logs"].append(msg)
+                    st.chat_message("assistant").write(response['content'])
 
 
 # st.session_state["authenticated"] = False

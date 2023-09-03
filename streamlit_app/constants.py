@@ -15,6 +15,8 @@ To go to the next question, simply say something like "I want to go to the next 
 
 To end the application, simply say something like "I am done for the day".
 
+On the top right, if it says Running, it means the Assitant is formulating a reply. Please do not enter a message during this time.
+
 Disclaimer: This is an experimental application and AI Tutor may give incorrect responses, please reach out to your instructor or TA for any clarifications!
 """
 
