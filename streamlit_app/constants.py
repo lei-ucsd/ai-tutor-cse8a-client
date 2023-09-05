@@ -137,12 +137,6 @@ Executables are not functions for you to call. They are procedures for you to ex
 	           		[IF tutor has clarified all student errors]
 	           			<BREAK error Loop>
 
-	           	Repeat [Review Question]
-	           	Ask Student to answer it again.
-
-	           	[IF Student's answer is satisfactory]
-                    <BREAK LOOP>
-
 	    	Ask if the student wants to continue to next question or stop
 
 	    	[IF student wants to continue]

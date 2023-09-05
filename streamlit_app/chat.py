@@ -145,6 +145,7 @@ def main():
         init_session()
 
     if prompt := st.chat_input("Input your response"):
+        got_response = False
         with st.spinner("Please wait for the assitant's reply"):
             for msg in st.session_state.messages:
                 st.chat_message(msg["role"]).write(msg["content"])
@@ -154,42 +155,48 @@ def main():
             st.chat_message("user").write(prompt)
 
             if st.session_state["mode"] == "proctor":
-                try:
-                    response = st.session_state["proctor"](prompt)
-                    if 'function_call' in response:
-                        function_name = response['function_call']['name']
+                while not got_response:
+                    try:
+                        response = st.session_state["proctor"](prompt)
+                        if 'function_call' in response:
+                            function_name = response['function_call']['name']
 
-                        if function_name == 'get_teacher':
-                            st.session_state['student_answer'] = prompt
-                            get_teacher()
-                        elif function_name == 'exit':
-                            exit()
-                    else:
-                        st.session_state.messages.append(response)
-                        st.session_state["logs"].append(msg)
-                        st.chat_message("assistant").write(response['content'])
-                except Exception as err:
-                    # st.chat_message("I").write(f"Something horrible happened:( Please refresh your browser.")
-                    st.session_state["logs"].append({"role": "Error", "content": str(err)})
-                    exit("Something horrible happened:(")
+                            if function_name == 'get_teacher':
+                                st.session_state['student_answer'] = prompt
+                                get_teacher()
+                            elif function_name == 'exit':
+                                exit()
+                        else:
+                            st.session_state.messages.append(response)
+                            st.session_state["logs"].append(msg)
+                            st.chat_message("assistant").write(response['content'])
+                        
+                        got_response = True
+                    except Exception as err:
+                        # st.chat_message("I").write(f"Something horrible happened:( Please refresh your browser.")
+                        st.session_state["logs"].append({"role": "Error", "content": str(err)})
+                        exit("Something horrible happened:(")
 
             else:
-                try:
-                    response = st.session_state["teacher"](prompt)
-                    if 'function_call' in response:
-                        function_name = response['function_call']['name']
-                        if function_name == 'get_proctor':
-                            get_proctor()
-                        elif function_name == 'exit':
-                            exit()
-                    else:
-                        st.session_state.messages.append(response)
-                        st.session_state["logs"].append(msg)
-                        st.chat_message("assistant").write(response['content'])
-                except Exception as err:
-                    # st.chat_message("I").write(f"Something horrible happened:( Please refresh your browser.")
-                    st.session_state["logs"].append({"role": "Error", "content": str(err)})
-                    exit("Something horrible happened:(")
+                while not got_response:
+                    try:
+                        response = st.session_state["teacher"](prompt)
+                        if 'function_call' in response:
+                            function_name = response['function_call']['name']
+                            if function_name == 'get_proctor':
+                                get_proctor()
+                            elif function_name == 'exit':
+                                exit()
+                        else:
+                            st.session_state.messages.append(response)
+                            st.session_state["logs"].append(msg)
+                            st.chat_message("assistant").write(response['content'])
+
+                        got_response = True
+                    except Exception as err:
+                        # st.chat_message("I").write(f"Something horrible happened:( Please refresh your browser.")
+                        st.session_state["logs"].append({"role": "Error", "content": str(err)})
+                        exit("Something horrible happened:(")
 
                 
 
