@@ -19,11 +19,16 @@ export default function Tutor() {
         return date;
     }
 
+    const logout = () => {
+        setPage("auth");
+        setCookie("page", "auth");
+    }
+
     return (
         <Layout title="Tutor" description="Tutor Page">
             {
                 page === "chat" ?
-                    <ChatInterface />
+                    <ChatInterface logout={logout}/>
                     :
                     <AuthPage onLogin={() => {
                         setPage("chat")

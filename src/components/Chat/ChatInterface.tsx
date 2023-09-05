@@ -1,6 +1,6 @@
 import "./index.css";
 import React from "react";
-import { Paper } from "@mui/material";
+import { Paper, Button } from "@mui/material";
 import { TextInput } from "./TextInput";
 import { MessageOther, MessageSelf } from "./Message";
 import { useState } from "react";
@@ -24,7 +24,11 @@ const initMsgs = [
     />
 ]
 
-export default function ChatInterface() {
+type Props = {
+    logout: () => void
+}
+
+export default function ChatInterface({logout}: Props) {
 
     const [rawMsgs, setRawMsgs] = useState(initRawMsgs);
 
@@ -116,6 +120,15 @@ export default function ChatInterface() {
     }
     return (
         <div className="chatContainer">
+            <div className="logoutBtnContainer">
+                <Button
+                    className="logoutBtn"
+                    sx={{ bgcolor: "var(--ifm-color-primary)", color: "white" }}
+                    onClick={() => logout()}
+                >
+                    End Tutoring Session
+                </Button>
+            </div>
             <Paper className="paper" elevation={0}>
                 <Paper id="style-1" className="messagesBody">
                     {showSpinner ? spinner : <></>}
