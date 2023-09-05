@@ -28,7 +28,6 @@ export default function AuthPage({ onLogin }: Props) {
         }
 
         // TODO: check auth credentials with server
-        // TODO: config cookies
 
         onLogin();
     }
