@@ -1,7 +1,6 @@
 import React, { useState } from "react"
 import { TextField, Button } from "@mui/material"
 import "./index.css"
-import { PropTypes } from "@mui/material"
 
 type Props = {
     onLogin: () => void
@@ -35,7 +34,7 @@ export default function AuthPage({ onLogin }: Props) {
     return (
         <div className="auth">
             <p>
-                Please login to access the tutor page.
+                Please login to access the CSE 8A interactive textbook.
             </p>
             <div className="form">
                 <TextField label="User" variant="outlined" required onChange={(e) => setUserName(e.target.value)} />
