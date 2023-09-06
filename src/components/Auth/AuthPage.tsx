@@ -1,6 +1,8 @@
 import React, { useState } from "react"
-import { TextField, Button } from "@mui/material"
+import { TextField, Button, OutlinedInput, InputAdornment, IconButton, FormControl, InputLabel } from "@mui/material"
 import "./index.css"
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 type Props = {
     onLogin: () => void
@@ -9,6 +11,15 @@ type Props = {
 export default function AuthPage({ onLogin }: Props) {
     const [userName, setUserName] = useState(null)
     const [password, setPassword] = useState(null)
+    const [showPassword, setShowPassword] = useState(false)
+
+    const handleClickShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+    };
 
     const login = () => {
         if (userName === null) {
@@ -37,8 +48,34 @@ export default function AuthPage({ onLogin }: Props) {
                 Please login to access the CSE 8A interactive textbook.
             </p>
             <div className="form">
-                <TextField label="User" variant="outlined" required onChange={(e) => setUserName(e.target.value)} />
-                <TextField label="Password" variant="outlined" required onChange={(e) => setPassword(e.target.value)} />
+                <TextField
+                    label="User"
+                    variant="outlined"
+                    required
+                    onChange={(e) => setUserName(e.target.value)}
+                    sx={{ m: 1, width: '20ch' }}
+                />
+                <FormControl sx={{ m: 1, width: '20ch' }} variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+                    <OutlinedInput
+                        label="Password"
+                        required
+                        onChange={(e) => setPassword(e.target.value)}
+                        type={showPassword ? 'text' : 'password'}
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={handleClickShowPassword}
+                                    onMouseDown={handleMouseDownPassword}
+                                    edge="end"
+                                >
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                    />
+                </FormControl>
                 <Button
                     sx={{ bgcolor: "var(--ifm-color-primary)", color: "white" }}
                     onClick={login}
