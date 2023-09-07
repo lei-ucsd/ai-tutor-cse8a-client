@@ -18,35 +18,37 @@ class GenericAgent:
 
 	def __call__(self, prompt):
 		self.messages.append({'role': 'user', 'content': prompt})
-
-		if self.functions:
-			response = openai.ChatCompletion.create(model=self.model_name, messages=self.messages, temperature=self.temperature, stream=self.stream, functions=self.functions)
-		else:
-			response = openai.ChatCompletion.create(model=self.model_name, messages=self.messages, temperature=self.temperature, stream=self.stream)
-
-		final_message = None
-
-		for choice in response.choices:
-			message = choice.message
-
-			if 'function_call' in message:
-				if not self.function_names:
-					continue
-
-				function_name = message['function_call']['name']
-
-				if function_name in self.function_names:
-					final_message = message
-				else:
-					continue
+		got_response = False
+		while not got_response:
+			if self.functions:
+				response = openai.ChatCompletion.create(model=self.model_name, messages=self.messages, temperature=self.temperature, stream=self.stream, functions=self.functions)
 			else:
-				final_message = message
-				break
+				response = openai.ChatCompletion.create(model=self.model_name, messages=self.messages, temperature=self.temperature, stream=self.stream)
+
+			final_message = None
+
+			for choice in response.choices:
+				message = choice.message
+
+				if 'function_call' in message:
+					if not self.function_names:
+						continue
+
+					function_name = message['function_call']['name']
+
+					if function_name in self.function_names:
+						final_message = message
+					else:
+						continue
+				else:
+					final_message = message
+					break
 
 
-		if final_message is None:
-			print(response.choices[0].message)
-			raise ValueError("OpenAI returned an invalid function call request")
+			if final_message is not None:
+				got_response = True
+				print(response.choices[0].message)
+				# raise ValueError("OpenAI returned an invalid function call request")
 
 		self.messages.append(final_message)
 
