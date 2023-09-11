@@ -6,7 +6,7 @@ import pickle
 TEXTBOOK_QUESTIONS = []
 TEXTBOOK_ANSWERS = []
 
-with open("docs/review_questions_50.pickle", 'rb') as file:
+with open("docs/revised_nano_chapter2_QA.pickle", 'rb') as file:
     dataset = pickle.load(file)
 
     for sample in dataset:
