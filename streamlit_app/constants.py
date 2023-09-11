@@ -10,8 +10,8 @@ with open("docs/revised_nano_chapter2_QA.pickle", 'rb') as file:
     dataset = pickle.load(file)
 
     for sample in dataset:
-        TEXTBOOK_QUESTIONS.append(sample['review']['question'])
-        TEXTBOOK_ANSWERS.append(sample['review']['answer'])
+        TEXTBOOK_QUESTIONS.append(sample['question'])
+        TEXTBOOK_ANSWERS.append(sample['answer'])
 
 
 WELCOME_MESSAGE = """
