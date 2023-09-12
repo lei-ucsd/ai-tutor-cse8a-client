@@ -33,7 +33,7 @@ class GenericAgent:
 
 			while not got_response:
 				final_message = ""
-
+				role = None
 				resp = next(response)
 				message = resp.choices[0].delta
 				if 'function_call' in message:
@@ -50,13 +50,13 @@ class GenericAgent:
 						response = self.get_response()
 						continue
 				else:
+					got_response = True
+					role = message["role"]
 					if 'content' in message:
 						got_response = True
 						final_message += message.content
-						# essage_placeholder.markdown(final_message + "▌")
 					else:
 						continue
-						# message_placeholder.markdown(final_message)
 
 			if type(final_message) == str:
 				with st.chat_message('assistant'):

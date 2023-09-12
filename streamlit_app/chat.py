@@ -152,47 +152,43 @@ def main():
         init_session()
 
     if prompt := st.chat_input("Input your response"):
-        got_response = False
-        with st.spinner("Please wait for the assitant's reply"):
-            for msg in st.session_state.messages:
-                st.chat_message(msg["role"]).write(msg["content"])
+        for msg in st.session_state.messages:
+            st.chat_message(msg["role"]).write(msg["content"])
 
-            st.session_state["logger"].info(f"User: {prompt}")
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            st.chat_message("user").write(prompt)
+        st.session_state["logger"].info(f"User: {prompt}")
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.chat_message("user").write(prompt)
 
-            if st.session_state["mode"] == "proctor":
-                # with st.chat_message("assistant"):
-                    # message_placeholder = st.empty()
-                response = st.session_state["proctor"](prompt, st)# , message_placeholder)
-                        
-                if 'function_call' in response:
-                    function_name = response['function_call']['name']
-
-                    if function_name == 'get_teacher':
-                        st.session_state['student_answer'] = prompt
-                        get_teacher()
-                    elif function_name == 'exit':
-                        exit()
-                else:
-                    st.session_state.messages.append(response)
-                    st.session_state["logger"].info(f"Proctor: {response['content']}")
+        if st.session_state["mode"] == "proctor":
+            # with st.chat_message("assistant"):
+                # message_placeholder = st.empty()
+            response = st.session_state["proctor"](prompt, st)# , message_placeholder)
                     
+            if 'function_call' in response:
+                function_name = response['function_call']['name']
 
+                if function_name == 'get_teacher':
+                    st.session_state['student_answer'] = prompt
+                    get_teacher()
+                elif function_name == 'exit':
+                    exit()
             else:
-                while not got_response:
-                    response = st.session_state["teacher"](prompt, st)# , message_placeholder)
+                st.session_state.messages.append(response)
+                st.session_state["logger"].info(f"Proctor: {response['content']}")
+                
 
-                    if 'function_call' in response:
-                        function_name = response['function_call']['name']
-                        if function_name == 'get_proctor':
-                            get_proctor()
-                        elif function_name == 'exit':
-                            exit()
-                    else:
-                        st.session_state.messages.append(response)
-                        st.session_state["logger"].info(f"Teacher: {response['content']}")
-                        st.chat_message("assistant").write(response['content'])
+        else:
+            response = st.session_state["teacher"](prompt, st)# , message_placeholder)
+
+            if 'function_call' in response:
+                function_name = response['function_call']['name']
+                if function_name == 'get_proctor':
+                    get_proctor()
+                elif function_name == 'exit':
+                    exit()
+            else:
+                st.session_state.messages.append(response)
+                st.session_state["logger"].info(f"Teacher: {response['content']}")
 
 
 if password := st.text_input("Enter Password", key="user_password", type="password"):
