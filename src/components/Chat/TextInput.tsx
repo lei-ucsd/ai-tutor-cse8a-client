@@ -3,6 +3,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { TextField, IconButton, TextareaAutosize } from '@mui/material'
 import Textarea from '@mui/joy/Textarea';
 import { useState } from 'react';
+import TextEditor from './TextEditor';
 
 
 export function TextInput({ onAddMsg }) {
@@ -20,13 +21,19 @@ export function TextInput({ onAddMsg }) {
                     onChange={(e) => setValue(e.target.value)}                 
                 // margin="normal"
                 /> */}
-                <Textarea
+                {/* <Textarea
                     id="standard-text"
                     className="wrapText"
                     value={value}
                     variant="outlined"
                     onChange={(e) => setValue(e.target.value)}
                 // margin="normal"
+                /> */}
+                <TextEditor
+                    id="standard-text"
+                    className="wrapText"
+                    value={value}
+                    onChange={setValue}
                 />
                 <IconButton
                     // variant="contained"
