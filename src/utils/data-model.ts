@@ -3,7 +3,8 @@ export type ChatRequest = {
     password: string,
     message: string,
     timestamp?: number,
-    history?: string
+    history?: string,
+    current_step?: string
 }
 
 export type ChatResponse = {
