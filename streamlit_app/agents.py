@@ -14,22 +14,28 @@ class GenericAgent:
 
 		self.messages = [{'role': 'system', 'content': system_prompt}]
 
+	def get_response(self):
+		if self.functions:
+			response = openai.ChatCompletion.create(model=self.model_name, messages=self.messages, temperature=self.temperature, stream=self.stream, functions=self.functions)
+		else:
+			response = openai.ChatCompletion.create(model=self.model_name, messages=self.messages, temperature=self.temperature, stream=self.stream)
 
+		return response
 
-	def __call__(self, prompt):
-		self.messages.append({'role': 'user', 'content': prompt})
-		got_response = False
-		while not got_response:
-			if self.functions:
-				response = openai.ChatCompletion.create(model=self.model_name, messages=self.messages, temperature=self.temperature, stream=self.stream, functions=self.functions)
-			else:
-				response = openai.ChatCompletion.create(model=self.model_name, messages=self.messages, temperature=self.temperature, stream=self.stream)
+	def __call__(self, prompt, st = None):
+		self.add_message('user', prompt)
+		response = self.get_response()
 
-			final_message = None
+		message_placeholder = None
 
-			for choice in response.choices:
-				message = choice.message
+		if self.stream:
+			got_response = False
 
+			while not got_response:
+				final_message = ""
+
+				resp = next(response)
+				message = resp.choices[0].delta
 				if 'function_call' in message:
 					if not self.function_names:
 						continue
@@ -38,21 +44,70 @@ class GenericAgent:
 
 					if function_name in self.function_names:
 						final_message = message
+						got_response = True
+						break
 					else:
+						response = self.get_response()
 						continue
 				else:
-					final_message = message
-					break
+					if 'content' in message:
+						got_response = True
+						final_message += message.content
+						# essage_placeholder.markdown(final_message + "▌")
+					else:
+						continue
+						# message_placeholder.markdown(final_message)
+
+			if type(final_message) == str:
+				with st.chat_message('assistant'):
+					message_placeholder = st.empty()
+					for resp in response:
+						message = resp.choices[0].delta
+						if not message_placeholder: message_placeholder = st.empty()
+						if 'content' in message:
+							final_message += message.content
+							message_placeholder.markdown(final_message + "▌")
+						else:
+							message_placeholder.markdown(final_message)
+
+				final_message = {'role': self.assistant_name, 'content': final_message}
+				self.messages.append(final_message)
+
+		else:
+			got_response = False
+			while not got_response:
+				final_message = None
+
+				for choice in response.choices:
+					message = choice.message
+
+					if 'function_call' in message:
+						if not self.function_names:
+							continue
+
+						function_name = message['function_call']['name']
+
+						if function_name in self.function_names:
+							final_message = message
+						else:
+							continue
+					else:
+						final_message = message
+						break
 
 
-			if final_message is not None:
-				got_response = True
-				print(response.choices[0].message)
-				# raise ValueError("OpenAI returned an invalid function call request")
+				if final_message is not None:
+					got_response = True
+					# raise ValueError("OpenAI returned an invalid function call request")
+				else:
+					response = get_response()
 
-		self.messages.append(final_message)
+			self.messages.append(final_message)
 
 		return final_message
+
+	def add_message(self, role, prompt):
+		self.messages.append({'role': role, 'content': prompt})
 
 
 	def clear_chat_history(self):

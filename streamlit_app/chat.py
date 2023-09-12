@@ -31,7 +31,6 @@ def exit(reason=None):
     st.chat_message("assistant").write(goodbye_message)
 
 def get_teacher():
-    # st.chat_message('I').write("Teacher Called")
     st.session_state["logger"].info(f"System: Teacher Called")
     question = st.session_state["question"]
     correct_answer = st.session_state["correct_answer"]
@@ -45,13 +44,8 @@ def get_teacher():
 
     grader_feedback = evaluator("Give a list of the errors, If there are no major errors simply say No Errors:")['content']
 
-    # st.chat_message("E").write(grader_feedback)
-    # st.chat_message("C").write(correct_answer)
     st.session_state["logger"].info(f"Grader: {grader_feedback}")
     st.session_state["logger"].info(f"CorrectAnswer: {correct_answer}")
-
-    # st.session_state["messages"].append({"role": "E", "content": grader_feedback})
-    # st.session_state["messages"].append({"role": "C", "content": correct_answer})
 
     teacher_functions = [
         {
@@ -67,15 +61,16 @@ def get_teacher():
     ]
 
     teacher_prompt = get_teacher_prompt(question = question, correct_answer = correct_answer, student_answer = student_answer, grader_feedback = grader_feedback)
-    teacher = GenericAgent('gpt-4', teacher_prompt, openai_api_key, functions = teacher_functions)
+    teacher = GenericAgent('gpt-4', teacher_prompt, openai_api_key, functions = teacher_functions, stream = True)
 
-    first_response = teacher("Execute <Lesson>")
+    # with st.chat_message('assistant'):
+    first_response = teacher("Execute <Lesson>", st)# , message_placeholder)
 
     st.session_state["teacher"] = teacher
 
     st.session_state["messages"].append(first_response)
     st.session_state["logger"].info(f"Teacher: {first_response['content']}")
-    st.chat_message("assistant").write(first_response['content'])
+    # st.chat_message("assistant").write(first_response['content'])
 
 
 def get_proctor():
@@ -102,7 +97,7 @@ def get_proctor():
                 "parameters": {"type": "object", "properties": {}}
             }
         ]
-        proctor = GenericAgent('gpt-4', proctor_prompt, openai_api_key, functions = proctor_functions)
+        proctor = GenericAgent('gpt-4', proctor_prompt, openai_api_key, functions = proctor_functions, stream = True)
 
         st.session_state["proctor"] = proctor
 
@@ -167,56 +162,39 @@ def main():
             st.chat_message("user").write(prompt)
 
             if st.session_state["mode"] == "proctor":
-                while not got_response:
-                    try:
-                        response = st.session_state["proctor"](prompt)
-                        got_response = True
-
-                        if 'function_call' in response:
-                            function_name = response['function_call']['name']
-
-                            if function_name == 'get_teacher':
-                                st.session_state['student_answer'] = prompt
-                                get_teacher()
-                            elif function_name == 'exit':
-                                exit()
-                        else:
-                            st.session_state.messages.append(response)
-                            st.session_state["logger"].info(f"Proctor: {response['content']}")
-                            st.chat_message("assistant").write(response['content'])
+                # with st.chat_message("assistant"):
+                    # message_placeholder = st.empty()
+                response = st.session_state["proctor"](prompt, st)# , message_placeholder)
                         
-                    except Exception as err:
-                        # st.chat_message("I").write(f"Something horrible happened:( Please refresh your browser.")
-                        st.session_state["logger"].error({"role": "Error", "content": str(err)})
-                        exit("Something horrible happened:(")
+                if 'function_call' in response:
+                    function_name = response['function_call']['name']
+
+                    if function_name == 'get_teacher':
+                        st.session_state['student_answer'] = prompt
+                        get_teacher()
+                    elif function_name == 'exit':
+                        exit()
+                else:
+                    st.session_state.messages.append(response)
+                    st.session_state["logger"].info(f"Proctor: {response['content']}")
+                    
 
             else:
                 while not got_response:
-                    try:
-                        response = st.session_state["teacher"](prompt)
-                        got_response = True
+                    response = st.session_state["teacher"](prompt, st)# , message_placeholder)
 
-                        if 'function_call' in response:
-                            function_name = response['function_call']['name']
-                            if function_name == 'get_proctor':
-                                get_proctor()
-                            elif function_name == 'exit':
-                                exit()
-                        else:
-                            st.session_state.messages.append(response)
-                            st.session_state["logger"].info(f"Teacher: {response['content']}")
-                            st.chat_message("assistant").write(response['content'])
-
-                        
-                    except Exception as err:
-                        # st.chat_message("I").write(f"Something horrible happened:( Please refresh your browser.")
-                        st.session_state["logger"].error({"role": "Error", "content": str(err)})
-                        exit("Something horrible happened:(")
-
-                
+                    if 'function_call' in response:
+                        function_name = response['function_call']['name']
+                        if function_name == 'get_proctor':
+                            get_proctor()
+                        elif function_name == 'exit':
+                            exit()
+                    else:
+                        st.session_state.messages.append(response)
+                        st.session_state["logger"].info(f"Teacher: {response['content']}")
+                        st.chat_message("assistant").write(response['content'])
 
 
-# st.session_state["authenticated"] = False
 if password := st.text_input("Enter Password", key="user_password", type="password"):
     if password == st.secrets["password"]:
         main()
