@@ -13,6 +13,7 @@ export async function getResponse(req: ChatRequest): Promise<ChatResponse | unde
         url += `&history=${escapeHTML(history)}`;
     }
 
+    console.log(url)
 
     try {
         const response = await axios.post(url, {
@@ -23,7 +24,9 @@ export async function getResponse(req: ChatRequest): Promise<ChatResponse | unde
                 "Access-Control-Allow-Headers": "Access-Control-Allow-Methods, Access-Control-Allow-Origin",
             }
         });
-        return JSON.parse(response.data);
+        const data = JSON.parse(response.data);
+        console.log(data)
+        return data;
 
     } catch (e) {
         console.error(e);
@@ -43,4 +46,6 @@ export function escapeHTML(text: string) {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/\?/g, "&quest;")
+      .replace(/\n/g, "__________")
+      .replace(/ /g, "%20")
   }
