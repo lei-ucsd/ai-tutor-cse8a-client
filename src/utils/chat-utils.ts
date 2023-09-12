@@ -3,21 +3,23 @@ import { mainURL, getResponseURL, ChatRequest, ChatResponse } from './index';
 
 
 export async function getResponse(req: ChatRequest): Promise<ChatResponse | undefined> {
-    const {user, password, message, timestamp, history} = req;
+    // const {user, password, message, timestamp, history} = req;
 
-    let url = `${mainURL}${getResponseURL}?&user=${escapeHTML(user)}&password=${escapeHTML(password)}&message=${escapeHTML(message)}`;
-    if (timestamp) {
-        url += `&timestamp=${timestamp}`;
-    }
-    if (history) {
-        url += `&history=${escapeHTML(history)}`;
-    }
+    let url = `${mainURL}${getResponseURL}`;
 
-    console.log(url)
+    // let url = `${mainURL}${getResponseURL}?&user=${escapeHTML(user)}&password=${escapeHTML(password)}&message=${escapeHTML(message)}`;
+    // if (timestamp) {
+    //     url += `&timestamp=${timestamp}`;
+    // }
+    // if (history) {
+    //     url += `&history=${escapeHTML(history)}`;
+    // }
+
+    // console.log(url)
 
     try {
         const response = await axios.post(url, {
-            // data : req, // {user: xxx, password: xxx, message: xxx, timestamp: xxx, history: xxx}
+            data : req, // {user: xxx, password: xxx, message: xxx, timestamp: xxx, history: xxx}
             headers: {
                 // "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET,POST",

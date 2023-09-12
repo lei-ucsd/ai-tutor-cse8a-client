@@ -26,6 +26,8 @@ const initMsgs = [
 
 export default function ChatInterface() {
 
+    const [currentStep, setCurrentStep] = useState(undefined);
+
     const [rawMsgs, setRawMsgs] = useState(initRawMsgs);
 
     const [msgs, setMsgs] = useState(initMsgs);
@@ -41,6 +43,10 @@ export default function ChatInterface() {
             password: "lei",
             timestamp: Date.now(),
             message: msg, // TODO: aggregate message history
+        }
+
+        if (currentStep) {
+            req.current_step = currentStep;
         }
 
         if (rawMsgs.length > 1) {
@@ -93,6 +99,14 @@ export default function ChatInterface() {
             setRawMsgs(newMsgs);
 
             setShowSpinner(false);
+
+            if (!res['current_step']) {
+                alert('Error: current_step not found in response.');
+                console.error(res);
+            } else {
+                setCurrentStep(res['current_step']);
+            }
+            
         } else {
             newMsgs.push({
                 type: 'bot',
