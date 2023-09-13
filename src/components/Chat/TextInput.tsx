@@ -11,24 +11,7 @@ export function TextInput({ onAddMsg }) {
 
     return (
         <>
-            {/* <div className="wrapForm" noValidate autoComplete="off"> */}
             <div className="wrapForm">
-                {/* <TextField
-                    id="standard-text"
-                    label="Message"
-                    className="wrapText"
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}                 
-                // margin="normal"
-                /> */}
-                {/* <Textarea
-                    id="standard-text"
-                    className="wrapText"
-                    value={value}
-                    variant="outlined"
-                    onChange={(e) => setValue(e.target.value)}
-                // margin="normal"
-                /> */}
                 <TextEditor
                     id="standard-text"
                     className="wrapText"

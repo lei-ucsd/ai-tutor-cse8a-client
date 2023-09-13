@@ -24,6 +24,12 @@ const initMsgs = [
     />
 ]
 
+// TODO: the back end supports up to analyze at the moment
+const bloomTaxonomy = ['create', 'evaluate', 'analyze', 'apply', 'understand']; 
+
+// hard coded threshold for all steps
+const THRESHOLD = 3;
+
 export default function ChatInterface() {
 
     const [currentStep, setCurrentStep] = useState(undefined);
@@ -34,6 +40,8 @@ export default function ChatInterface() {
 
     const [showSpinner, setShowSpinner] = useState(false);
 
+    const [correctSoFar, setCorrectSoFar] = useState(0);
+
     const spinner = <LoadingSpinner />;
 
     const addMsg = async (msg: string) => {
@@ -43,6 +51,8 @@ export default function ChatInterface() {
             password: "lei",
             timestamp: Date.now(),
             message: msg, // TODO: aggregate message history
+            correctSoFar: correctSoFar,
+            threshold: THRESHOLD
         }
 
         if (currentStep) {
@@ -80,6 +90,9 @@ export default function ChatInterface() {
 
 
         if (res) {
+
+            // if res.correct then increment question count
+            // if question count exceeds threshold then change step
             newMsgs.push({
                 type: 'bot',
                 message: res.message
@@ -104,7 +117,14 @@ export default function ChatInterface() {
                 alert('Error: current_step not found in response.');
                 console.error(res);
             } else {
+                if (res['current_step'] !== currentStep) {
+                    setCorrectSoFar(0);
+                }
                 setCurrentStep(res['current_step']);
+            }
+
+            if (res['correct'] === true) {
+                setCorrectSoFar(correctSoFar + 1);
             }
             
         } else {
