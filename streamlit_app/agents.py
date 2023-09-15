@@ -97,10 +97,8 @@ class GenericAgent:
 						final_message = message
 						break
 
-
 				if final_message is not None:
 					got_response = True
-					# raise ValueError("OpenAI returned an invalid function call request")
 				else:
 					response = get_response()
 
@@ -110,7 +108,6 @@ class GenericAgent:
 
 	def add_message(self, role, prompt):
 		self.messages.append({'role': role, 'content': prompt})
-
 
 	def clear_chat_history(self):
 		self.messages = [{'role': 'system', 'content': self.system_prompt}]

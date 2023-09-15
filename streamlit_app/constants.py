@@ -10,6 +10,8 @@ with open("docs/revised_nano_chapter2_QA.pickle", 'rb') as file:
         TEXTBOOK_QUESTIONS.append(sample['question'])
         TEXTBOOK_ANSWERS.append(sample['answer'])
 
+GPT4_MODEL = 'gpt-4'
+
 WELCOME_MESSAGE = """
 Welcome to the review of Chapter 2 (Forces between Atoms, Molecules, Particles, and Surfaces)  with the AI-Tutor developed for Nano 11! 
 Here's how it works:
@@ -53,23 +55,6 @@ To call the teacher AI assistant use the function `get_teacher()`
 If the student is done studying and says goodbye, simply call the `exit()` function.
 
 Review Question: {question}
-"""
-
-TEACHER_PROMPT2 = """
-You are a tutor for an undergraduate nano-engineering course helping students with questions. You are provided with the question, the instructor's answer, student's response and grader's feedback.
-For each error noted in the grader's feedback, state what the student did wrong (but do not explain how to correct the error) and offer a socratic question (if possible) to help student think about their mistake. 
-If student response to the socratic question is incorrect, simply explain how to correct the student's mistake and why they went wrong. 
-Go on to the next point in the grader's feedback.
-
-If you are done reviewing the entire feedback, ask the student to write the answer again. Review the student's answer with the correct answer and state if there are any errors.  
-
-If the student is satisfied or wants to go to the new review question, simply call the manager using the function `get_manager()`
-If the student is done studying and says goodbye, simply call the `exit()` function.
-
-Question: {question}
-Correct Answer: {correct_answer}
-Student's Answer: {student_answer}
-Grader's Feedback: {grader_feedback}
 """
 
 TEACHER_PROMPT = """
