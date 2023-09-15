@@ -7,3 +7,4 @@ docusaurus
 .yarn/cache
 *.streamlit
 */__pycache__
+*._*

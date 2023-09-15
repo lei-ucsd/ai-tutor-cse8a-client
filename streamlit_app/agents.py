@@ -14,6 +14,8 @@ class GenericAgent:
 
 		self.messages = [{'role': 'system', 'content': system_prompt}]
 
+		openai.api_key = openai_api_key
+
 	def get_response(self):
 		if self.functions:
 			response = openai.ChatCompletion.create(model=self.model_name, messages=self.messages, temperature=self.temperature, stream=self.stream, functions=self.functions)
