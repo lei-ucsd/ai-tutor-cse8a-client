@@ -41,7 +41,7 @@ export function MessageSelf(props) {
     return (
         <div className="messageRowRight">
             <div className="messageOrange">
-                <p className="messageContent">{message}</p>
+                <MarkdownWithCodeHighlighted message={message} />
                 <div className="messageTimeStampRight">{timestamp}</div>
             </div>
         </div>
@@ -49,7 +49,7 @@ export function MessageSelf(props) {
 };
 
 
-export function MarkdownWithCodeHighlighted ({ message }: { message: string }) {
+export function MarkdownWithCodeHighlighted({ message }: { message: string }) {
     return (
         <ReactMarkdown
             children={message}
