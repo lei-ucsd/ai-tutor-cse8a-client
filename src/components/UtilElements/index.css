@@ -1,12 +1,14 @@
 .lds-ellipsis {
-    display: inline-block;
+    /* display: inline-block; */
+    display: flex;
     position: relative;
-    width: 80px;
-    height: 80px;
+    /* width: 3vw; */
+    height: 10vh;
 }
 
 .lds-ellipsis div {
-    position: absolute;
+    /* position: absolute; */
+    margin: 3vh 1vw;
     top: 33px;
     width: 13px;
     height: 13px;
@@ -21,7 +23,7 @@
 }
 
 .lds-ellipsis div:nth-child(2) {
-    left: 8px;
+    left: 24px;
     animation: lds-ellipsis2 0.6s infinite;
 }
 

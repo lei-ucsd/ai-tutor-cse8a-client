@@ -42,7 +42,7 @@ export default function ChatInterface() {
             user: "bob",
             password: "lei",
             timestamp: Date.now(),
-            message: msg, // TODO: aggregate message history
+            message: msg, 
         }
 
         if (currentStep) {
@@ -78,7 +78,6 @@ export default function ChatInterface() {
         console.log(req)
         const res = await getResponse(req);
 
-
         if (res) {
             newMsgs.push({
                 type: 'bot',
@@ -106,7 +105,7 @@ export default function ChatInterface() {
             } else {
                 setCurrentStep(res['current_step']);
             }
-            
+
         } else {
             newMsgs.push({
                 type: 'bot',
@@ -132,8 +131,10 @@ export default function ChatInterface() {
         <div className="chatContainer">
             <Paper className="paper" elevation={0}>
                 <Paper id="style-1" className="messagesBody">
-                    {showSpinner ? spinner : <></>}
-                    {msgs}
+                    <div className="messages">
+                        {showSpinner ? spinner : <></>}
+                        {msgs}
+                    </div>
                 </Paper>
                 <TextInput onAddMsg={addMsg} />
             </Paper>
@@ -141,50 +142,6 @@ export default function ChatInterface() {
     )
 }
 
-// // TODO: not efficient. Refactor this.
-// function renderMessages(msgs: Message[]) {
-//     let elems = [];
-//     for (let i = 0; i < msgs.length; i++) {
-//         const msg = msgs[i];
-//         if (msg.type === 'bot') {
-//             if (i > 0 && msgs[i - 1].type === 'bot') {
-//                 elems = [
-//                     <MessageOther
-//                         message={msg.message}
-//                         timestamp=""
-//                         displayName="AI Tutor"
-//                         avatarDisp={false}
-//                     />,
-//                     ...elems]
-//             }
-//             else {
-//                 elems = [
-//                     <MessageOther
-//                         message={msg.message}
-//                         timestamp=""
-//                         displayName="AI Tutor"
-//                         avatarDisp={true}
-//                     />
-//                     ,
-//                     ...elems
-//                 ]
-//             }
-//         } else {
-//             elems = [
-//                 <MessageSelf
-//                     message={msg.message}
-//                     timestamp=""
-//                     displayName="User"
-//                     avatarDisp={false}
-//                 />,
-//                 ...elems
-//             ]
-
-//         }
-//     };
-
-//     return elems;
-// }
 
 function getHistory(msgs: Message[]) {
     let history = "\n";
