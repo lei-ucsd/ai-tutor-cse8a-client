@@ -31,8 +31,18 @@
 .messagesBody {
     width: calc(100% - 20px);
     /* margin: 90px 1vw; */
+    /* overflow-y: auto; */
+    height: 60%;
+    /* height: calc(100% - 200px); */
+    /* display: flex;
+    flex-direction: column-reverse; */
+}
+
+.messages {
+    height: 90%;
+    width: 100%;
     overflow-y: scroll;
-    height: calc(100% - 90px);
+    /* height: calc(100% - 200px); */
     display: flex;
     flex-direction: column-reverse;
 }
