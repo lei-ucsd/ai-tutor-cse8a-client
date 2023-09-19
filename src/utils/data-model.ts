@@ -4,7 +4,9 @@ export type ChatRequest = {
     message: string,
     timestamp?: number,
     history?: string,
-    current_step?: string
+    current_step?: string,
+    correctSoFar?: number,
+    threshold?: number
 }
 
 export type ChatResponse = {
