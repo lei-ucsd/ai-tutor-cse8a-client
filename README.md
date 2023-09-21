@@ -32,3 +32,5 @@ This command generates static content into the `build` directory and can be serv
 If you have write permission to the `main` branch of this repository, then _every_ commit you make will lead to an auto-deployment to `gh-pages` via GitHub Actions.
 
 As such, it is recommended that you keep your work on separate branches and only open pull requests for merging the branches into `main` when the work is ready.
+
+Note that it may take some time for changes to redeploy.
