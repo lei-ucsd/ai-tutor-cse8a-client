@@ -47,7 +47,7 @@ export default function ChatInterface() {
     const addMsg = async (msg: string) => {
 
         const req: ChatRequest = {
-            user: "bob",
+            user: "kayla",
             password: "lei",
             timestamp: Date.now(),
             message: msg, 

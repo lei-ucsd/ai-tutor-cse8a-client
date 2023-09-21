@@ -32,7 +32,7 @@ export default function AuthPage({ onLogin }: Props) {
             return;
         }
 
-        if (userName !== "bob" || password !== "lei") {
+        if (userName !== "kayla" || password !== "lei") {
             alert("Wrong username or password.");
             return;
         }
