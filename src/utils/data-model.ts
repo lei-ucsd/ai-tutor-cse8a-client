@@ -6,7 +6,8 @@ export type ChatRequest = {
     history?: string,
     current_step?: string,
     correctSoFar?: number,
-    threshold?: number
+    threshold?: number,
+    questions?: string
 }
 
 export type ChatResponse = {
