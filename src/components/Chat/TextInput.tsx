@@ -20,7 +20,13 @@ export function TextInput({ onAddMsg }) {
                 />
                 <IconButton
                     // variant="contained"
-                    sx={{ color: "var(--ifm-color-primary" }}
+                    sx={[
+                        {
+                            '&:hover': {
+                                color: "var(--ifm-color-primary)",
+                                backgroundColor: "transparent"
+                            }
+                        }]}
                     className="button"
                     onClick={
                         () => {
