@@ -16,7 +16,10 @@ export function TextInput({ onAddMsg }) {
                     id="standard-text"
                     className="wrapText"
                     value={value}
-                    onChange={setValue}
+                    onChange={(x) => {
+                        console.log(x);
+                        setValue(x)
+                    }}
                 />
                 <IconButton
                     // variant="contained"

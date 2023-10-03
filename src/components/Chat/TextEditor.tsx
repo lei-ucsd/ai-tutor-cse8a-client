@@ -1,5 +1,6 @@
 import React from "react";
 import MDEditor from '@uiw/react-md-editor';
+import { Editable, useEditor } from "@wysimark/react"
 
 type PropType = {
     id: string,
@@ -9,6 +10,7 @@ type PropType = {
 }
 
 export default function TextEditor({ id, className, value, onChange }: PropType) {
+    const editor = useEditor({ maxHeight: 200 });
 
     return (
         // TODO: auto switching between light and dark mode based on site settings
@@ -21,10 +23,17 @@ export default function TextEditor({ id, className, value, onChange }: PropType)
                 margin: '1vh 0px',
                 maxWidth: '100%',
             }}>
-            <MDEditor
+            {/* <MDEditor
                 value={value}
                 onChange={onChange}
+            /> */}
+            <Editable
+                editor={editor}
+                value={value}
+                onChange={onChange}
+                throttleInMs={200}
             />
+
         </div>
     )
 }
