@@ -48,6 +48,11 @@ export default function ChatInterface() {
 
     const addMsg = async (msg: string) => {
 
+        if (msg.trim().length === 0) {
+            alert('Please enter a non-empty message.');
+            return;
+        }
+
         const req: ChatRequest = {
             user: "kayla",
             password: "lei",
