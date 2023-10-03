@@ -34,6 +34,8 @@ export default function ChatInterface() {
 
     const [currentStep, setCurrentStep] = useState(undefined);
 
+    const [questions, setQuestions] = useState(undefined);
+
     const [rawMsgs, setRawMsgs] = useState(initRawMsgs);
 
     const [msgs, setMsgs] = useState(initMsgs);
@@ -61,6 +63,10 @@ export default function ChatInterface() {
 
         if (rawMsgs.length > 1) {
             req.history = getHistory(rawMsgs);
+        }
+
+        if (questions) {
+            req.questions = JSON.stringify(questions);
         }
 
         const newMsgs: Message[] = [
@@ -124,6 +130,10 @@ export default function ChatInterface() {
 
             if (res['correct'] === true) {
                 setCorrectSoFar(correctSoFar + 1);
+            }
+
+            if (res['questions']) {
+                setQuestions(res['questions']);
             }
             
         } else {
