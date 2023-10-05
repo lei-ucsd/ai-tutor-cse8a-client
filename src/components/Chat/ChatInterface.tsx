@@ -129,6 +129,7 @@ export default function ChatInterface() {
             } else {
                 if (res['current_step'] !== currentStep) {
                     setCorrectSoFar(0);
+                    setQuestions(undefined);
                 }
                 setCurrentStep(res['current_step']);
             }
