@@ -2,6 +2,7 @@ import React from "react";
 import MDEditor from '@uiw/react-md-editor';
 import { Editable, useEditor } from "@wysimark/react"
 
+
 type PropType = {
     id: string,
     className: string,
@@ -27,12 +28,13 @@ export default function TextEditor({ id, className, value, onChange }: PropType)
                 value={value}
                 onChange={onChange}
             /> */}
-            <Editable
+            {/* <Editable
                 editor={editor}
                 value={value}
                 onChange={onChange}
                 throttleInMs={200}
-            />
+            /> */}
+
 
         </div>
     )
