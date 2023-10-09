@@ -28,7 +28,8 @@ export default function TextEditor({ id, className, value, onChange }: PropType)
 
                 // if (e.key === '`') {
                 //     e.preventDefault()
-                //     editor.insertText('`');
+                //     // editor.addMark('code', 'kk');
+                //     // editor.insertText('`');
                 // }
 
                 // support tabbing

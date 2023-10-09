@@ -32,7 +32,7 @@
     width: calc(100% - 20px);
     /* margin: 90px 1vw; */
     /* overflow-y: auto; */
-    height: 60%;
+    height: 70%;
     /* height: calc(100% - 200px); */
     /* display: flex;
     flex-direction: column-reverse; */
@@ -174,7 +174,7 @@
 .wrapForm {
     display: flex;
     justify-content: center;
-    width: 95%;
+    width: 100%;
     margin: auto;
 }
 
