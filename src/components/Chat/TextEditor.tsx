@@ -1,5 +1,5 @@
 import React from "react";
-import MDEditor from '@uiw/react-md-editor';
+// import MDEditor from '@uiw/react-md-editor';
 import { Editable, useEditor } from "@wysimark/react"
 
 
@@ -11,7 +11,7 @@ type PropType = {
 }
 
 export default function TextEditor({ id, className, value, onChange }: PropType) {
-    const editor = useEditor({ maxHeight: 200 });
+    const editor = useEditor({ maxHeight: 1000 });
 
     return (
         // TODO: auto switching between light and dark mode based on site settings
@@ -23,17 +23,28 @@ export default function TextEditor({ id, className, value, onChange }: PropType)
             style={{
                 margin: '1vh 0px',
                 maxWidth: '100%',
-            }}>
-            {/* <MDEditor
-                value={value}
-                onChange={onChange}
-            /> */}
-            {/* <Editable
+            }}
+            onKeyDown={(e) => {
+
+                // if (e.key === '`') {
+                //     e.preventDefault()
+                //     editor.insertText('`');
+                // }
+
+                // support tabbing
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    editor.insertText('    ');
+                }
+            }}
+        >
+
+            <Editable
                 editor={editor}
                 value={value}
                 onChange={onChange}
                 throttleInMs={200}
-            /> */}
+            />
 
 
         </div>
