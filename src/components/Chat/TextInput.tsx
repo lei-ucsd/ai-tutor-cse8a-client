@@ -22,6 +22,8 @@ export function TextInput({ onAddMsg }) {
                     }}
                 />
                 <IconButton
+                    disableRipple
+                    disableFocusRipple
                     // variant="contained"
                     sx={[
                         {
@@ -29,7 +31,20 @@ export function TextInput({ onAddMsg }) {
                                 color: "var(--ifm-color-primary)",
                                 backgroundColor: "transparent"
                             }
-                        }]}
+                        },
+                        {
+                            // // '&:focus': {
+                            //     transition: "none",
+                            //     WebkitTransition: "none",
+                            //     backgroundColor: "transparent",
+                            //     color: "transparent",
+                            //     boxShadow: "0 0 0",
+                            //     WebkitBoxShadow: "none",
+                            //     outline: "none",
+                            // // }
+                            boxShadow: '0'
+                        }
+                    ]}
                     className="button"
                     onClick={
                         () => {

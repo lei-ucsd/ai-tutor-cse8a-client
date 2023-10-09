@@ -11,7 +11,7 @@ type PropType = {
 }
 
 export default function TextEditor({ id, className, value, onChange }: PropType) {
-    const editor = useEditor({ maxHeight: 1000 });
+    const editor = useEditor({height: '100%', maxHeight: '100%'});
 
     return (
         // TODO: auto switching between light and dark mode based on site settings
