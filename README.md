@@ -4,8 +4,14 @@ This website is built using [Docusaurus 2](https://docusaurus.io/), a modern sta
 
 ### Prerequisites
 Node >= 18
+Yarn 1.22.x
 
-### Installation
+You can install yarn globally by running the following:
+```
+npm install --global yarn
+```
+
+### Installing Dependencies
 
 ```
 $ yarn
