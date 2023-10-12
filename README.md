@@ -3,8 +3,8 @@
 This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
 ### Prerequisites
-Node >= 18
-Yarn 1.22.x
+- Node >= 18
+- Yarn 1.22.x
 
 You can install yarn globally by running the following:
 ```
