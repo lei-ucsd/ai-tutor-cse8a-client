@@ -7,6 +7,8 @@ export async function getResponse(req: ChatRequest): Promise<ChatResponse | unde
 
     let url = `${mainURL}${getResponseURL}`;
 
+    console.log(url)
+
     // let url = `${mainURL}${getResponseURL}?&user=${escapeHTML(user)}&password=${escapeHTML(password)}&message=${escapeHTML(message)}`;
     // if (timestamp) {
     //     url += `&timestamp=${timestamp}`;

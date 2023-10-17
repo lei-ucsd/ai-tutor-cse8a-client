@@ -25,7 +25,7 @@ const initMsgs = [
 ]
 
 // TODO: the back end supports up to analyze at the moment
-const bloomTaxonomy = ['create', 'evaluate', 'analyze', 'apply', 'understand']; 
+const bloomTaxonomy = ['create', 'evaluate', 'analyze', 'apply', 'understand'];
 
 // hard coded threshold for all steps
 const THRESHOLD = 3;
@@ -57,7 +57,7 @@ export default function ChatInterface() {
             user: "kayla",
             password: "lei",
             timestamp: Date.now(),
-            message: msg, 
+            message: msg,
             correctSoFar: correctSoFar,
             threshold: THRESHOLD
         }
@@ -141,7 +141,7 @@ export default function ChatInterface() {
             if (res['questions']) {
                 setQuestions(res['questions']);
             }
-            
+
         } else {
             newMsgs.push({
                 type: 'bot',

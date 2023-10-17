@@ -4,6 +4,8 @@
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const { configure } = require("@rise4fun/docusaurus-plugin-rise4fun");
+require('dotenv').config()
+
 
 
 /** @type {import('@docusaurus/types').Config} */
@@ -71,8 +73,8 @@ const docusaurusConfig = {
             position: 'left',
             label: 'Textbook',
           },
-          {to: '/playground', label: 'Playground', position: 'left'},
-          {to: '/tutor', label: 'Tutor', position: 'left'},
+          { to: '/playground', label: 'Playground', position: 'left' },
+          { to: '/tutor', label: 'Tutor', position: 'left' },
           {
             href: 'https://github.com/lei-ucsd/ai-tutor-cse8a-client',
             label: 'GitHub',
@@ -117,11 +119,16 @@ const docusaurusConfig = {
         darkTheme: darkCodeTheme,
       },
     }),
+
+  customFields: {
+    'LOCAL': process.env.LOCAL,
+    'LOCAL_SERVER': process.env.LOCAL_SERVER,
+  },
 };
 
 const config = configure(
-  docusaurusConfig, 
+  docusaurusConfig,
   // TODO: rise4fun config {}
-  )
+)
 
 module.exports = config;
