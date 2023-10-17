@@ -19,11 +19,18 @@ $ yarn
 
 ### Local Development
 
+#### Optional: Using a local server
+
+Make a copy of `.env-sample` and rename it to `.env`. Configure the environment variables as instructed in the env template.
+
+#### Starting local devlopment
+If not using a local server, you could skip the step above, or simply set `LOCAL` to 0. Then, run the following:
+
 ```
 $ yarn start
 ```
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server (except changes to `.env`, which requires a full restart).
 
 ### Build
 
