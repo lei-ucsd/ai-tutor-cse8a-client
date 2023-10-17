@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { mainURL, getResponseURL, ChatRequest, ChatResponse } from './index';
+import { useStreaming, mainURL, getResponseURL, ChatRequest, ChatResponse } from './index';
 
 
 export async function getResponse(req: ChatRequest): Promise<ChatResponse | undefined> {
@@ -20,17 +20,24 @@ export async function getResponse(req: ChatRequest): Promise<ChatResponse | unde
     // console.log(url)
 
     try {
-        const response = await axios.post(url, {
-            data : req, // {user: xxx, password: xxx, message: xxx, timestamp: xxx, history: xxx}
-            headers: {
-                // "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET,POST",
-                "Access-Control-Allow-Headers": "Access-Control-Allow-Methods, Access-Control-Allow-Origin",
-            }
-        });
-        const data = JSON.parse(response.data);
-        console.log(data)
-        return data;
+
+        if (useStreaming) {
+
+            throw new Error('Streaming not supported');
+
+        } else {
+            const response = await axios.post(url, {
+                data: req, // {user: xxx, password: xxx, message: xxx, timestamp: xxx, history: xxx}
+                headers: {
+                    // "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET,POST",
+                    "Access-Control-Allow-Headers": "Access-Control-Allow-Methods, Access-Control-Allow-Origin",
+                }
+            });
+            const data = JSON.parse(response.data);
+            console.log(data)
+            return data;
+        }
 
     } catch (e) {
         console.error(e);
@@ -42,14 +49,14 @@ export async function getResponse(req: ChatRequest): Promise<ChatResponse | unde
 
 export function escapeHTML(text: string) {
     if (!text) {
-      console.error("No text given")
-      return
+        console.error("No text given")
+        return
     }
     return text
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/\?/g, "&quest;")
-      .replace(/\n/g, "__________")
-      .replace(/ /g, "%20")
-  }
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\?/g, "&quest;")
+        .replace(/\n/g, "__________")
+        .replace(/ /g, "%20")
+}
