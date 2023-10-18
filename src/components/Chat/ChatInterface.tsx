@@ -66,9 +66,6 @@ export default function ChatInterface() {
             req.current_step = currentStep;
         }
 
-        if (rawMsgs.length > 1) {
-            req.history = getHistory(rawMsgs);
-        }
 
         if (questions) {
             req.questions = JSON.stringify(questions);
@@ -81,6 +78,13 @@ export default function ChatInterface() {
                 message: msg
             }
         ];
+
+        // if (rawMsgs.length > 1) {
+        req.history = getHistory(newMsgs);
+        // }
+
+        console.log(req.history)
+
 
         const newRenderedMsgs = [
             <MessageSelf
@@ -96,7 +100,6 @@ export default function ChatInterface() {
         setShowSpinner(true);
 
 
-        console.log(req)
         const res = await getResponse(req);
 
         if (res) {
@@ -184,9 +187,9 @@ function getHistory(msgs: Message[]) {
     for (let i = 0; i < msgs.length; i++) {
         const msg = msgs[i];
         if (msg.type === 'bot') {
-            history += "AI: " + msg.message + "\n";
+            history += "tutor: " + msg.message + "\n";
         } else {
-            history += "User: " + msg.message + "\n";
+            history += "student: " + msg.message + "\n";
         }
     }
 

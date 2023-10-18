@@ -10,6 +10,12 @@ export type ChatRequest = {
     questions?: string
 }
 
+export type ChatRequestStream = {
+    name: string,
+    chat_history?: string,
+    last_question?: string
+}
+
 export type ChatResponse = {
     message: string,
     timestamp: number
