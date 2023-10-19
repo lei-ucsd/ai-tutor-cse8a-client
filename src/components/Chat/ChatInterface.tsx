@@ -114,7 +114,7 @@ export default function ChatInterface() {
 
             getResponse(req, setData)
                 .then((res) => {
-                    const msg = res.tutor_response;
+                    const msg = res.tutor_response + '\n\n' + res.follow_up_question;
                     console.log("msg: ", msg)
                     const finalAIMsg = <MessageOther
                         message={msg}
