@@ -42,7 +42,8 @@
     "pyodide": "^0.23.4",
     "react": "^17.0.2",
     "react-cookie": "^6.1.0",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "untruncate-json": "^0.0.1"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.4.1",

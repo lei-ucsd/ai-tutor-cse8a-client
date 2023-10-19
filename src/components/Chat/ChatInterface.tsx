@@ -1,11 +1,11 @@
 import "./index.css";
-import React from "react";
+import React, { useEffect } from "react";
 import { Paper } from "@mui/material";
 import { TextInput } from "./TextInput";
 import { MessageOther, MessageSelf } from "./Message";
 import { useState } from "react";
 import LoadingSpinner from "../UtilElements/LoadingSpinner";
-import { ChatRequest, getResponse, Message } from "@site/src/utils";
+import { ChatRequest, getResponse, Message, useStreaming } from "@site/src/utils";
 
 
 const initRawMsgs: Message[] = [
@@ -39,6 +39,8 @@ export default function ChatInterface() {
     const [rawMsgs, setRawMsgs] = useState(initRawMsgs);
 
     const [msgs, setMsgs] = useState(initMsgs);
+
+    const [data, setData] = useState([]);
 
     const [showSpinner, setShowSpinner] = useState(false);
 
@@ -79,99 +81,154 @@ export default function ChatInterface() {
             }
         ];
 
-        // if (rawMsgs.length > 1) {
-        req.history = getHistory(newMsgs);
-        // }
-
-        console.log(req.history)
 
 
-        const newRenderedMsgs = [
-            <MessageSelf
-                message={msg}
-                timestamp=""
-                displayName="User"
-                avatarDisp={false}
-            />,
-            ...msgs
-        ]
 
-        setMsgs(newRenderedMsgs);
-        setShowSpinner(true);
+        if (useStreaming) {
+            req.history = getHistory(newMsgs);
+
+            const newRenderedMsgs = [
+                <MessageSelf
+                    message={msg}
+                    timestamp=""
+                    displayName="User"
+                    avatarDisp={false}
+                />,
+                ...msgs
+            ]
+
+            setMsgs(newRenderedMsgs);
 
 
-        const res = await getResponse(req);
+            // // setTimeout(() => {
+            //     console.log(data)
 
-        if (res) {
+            //     for (let i = 0; i < 10; i++) {
 
-            // if res.correct then increment question count
-            // if question count exceeds threshold then change step
-            newMsgs.push({
-                type: 'bot',
-                message: res.message
+            //         setTimeout(() => {
+            //             setData((data) => [...data, "."])
+            //         }, 300);
+    
+            //     }
+            // // }, 500)
+
+            getResponse(req, setData)
+            .then(() => {
+                // TODO: copy the current AI message to the list of messages, 
+                // reset data to undefined
             });
-            setMsgs(
-                [
-                    <MessageOther
-                        message={res.message}
-                        timestamp=""
-                        displayName="AI Tutor"
-                        avatarDisp={true}
-                    />,
-                    ...newRenderedMsgs
-                ]
-            );
 
-            setRawMsgs(newMsgs);
 
-            setShowSpinner(false);
 
-            if (!res['current_step']) {
-                alert('Error: current_step not found in response.');
-                console.error(res);
-            } else {
-                if (res['current_step'] !== currentStep) {
-                    setCorrectSoFar(0);
-                    setQuestions(undefined);
-                }
-                setCurrentStep(res['current_step']);
-            }
 
-            if (res['correct'] === true) {
-                setCorrectSoFar(correctSoFar + 1);
-            }
-
-            if (res['questions']) {
-                setQuestions(res['questions']);
-            }
 
         } else {
-            newMsgs.push({
-                type: 'bot',
-                message: "AI is offline at the moment. Please try again later."
-            });
-            setRawMsgs(newMsgs);
-            setMsgs(
-                [
-                    <MessageOther
-                        message={"AI is offline at the moment. Please try again later."}
-                        timestamp=""
-                        displayName="AI Tutor"
-                        avatarDisp={true}
-                    />,
-                    ...newRenderedMsgs
-                ]
-            );
-            setShowSpinner(false);
+            if (rawMsgs.length > 1) {
+                req.history = getHistory(rawMsgs);
+            }
+
+            const newRenderedMsgs = [
+                <MessageSelf
+                    message={msg}
+                    timestamp=""
+                    displayName="User"
+                    avatarDisp={false}
+                />,
+                ...msgs
+            ]
+
+            setMsgs(newRenderedMsgs);
+
+            setShowSpinner(true);
+
+
+            const res = await getResponse(req);
+
+            if (res) {
+
+                // if res.correct then increment question count
+                // if question count exceeds threshold then change step
+                newMsgs.push({
+                    type: 'bot',
+                    message: res.message
+                });
+                setMsgs(
+                    [
+                        <MessageOther
+                            message={res.message}
+                            timestamp=""
+                            displayName="AI Tutor"
+                            avatarDisp={true}
+                        />,
+                        ...newRenderedMsgs
+                    ]
+                );
+
+                setRawMsgs(newMsgs);
+
+                setShowSpinner(false);
+
+                if (!res['current_step']) {
+                    alert('Error: current_step not found in response.');
+                    console.error(res);
+                } else {
+                    if (res['current_step'] !== currentStep) {
+                        setCorrectSoFar(0);
+                        setQuestions(undefined);
+                    }
+                    setCurrentStep(res['current_step']);
+                }
+
+                if (res['correct'] === true) {
+                    setCorrectSoFar(correctSoFar + 1);
+                }
+
+                if (res['questions']) {
+                    setQuestions(res['questions']);
+                }
+
+            } else {
+                newMsgs.push({
+                    type: 'bot',
+                    message: "AI is offline at the moment. Please try again later."
+                });
+                setRawMsgs(newMsgs);
+                setMsgs(
+                    [
+                        <MessageOther
+                            message={"AI is offline at the moment. Please try again later."}
+                            timestamp=""
+                            displayName="AI Tutor"
+                            avatarDisp={true}
+                        />,
+                        ...newRenderedMsgs
+                    ]
+                );
+                setShowSpinner(false);
+            }
         }
 
     }
+
+
     return (
         <div className="chatContainer">
             <Paper className="paper" elevation={0}>
                 <Paper id="style-1" className="messagesBody">
                     <div className="messages">
                         {showSpinner ? spinner : <></>}
+                        {/* most recent AI message */}
+                        {
+
+                            data.length > 0 ?
+                                <MessageOther
+                                    message={data.join("")}
+                                    timestamp=""
+                                    displayName="AI Tutor"
+                                    avatarDisp={true}
+                                />
+                                : <></>
+                        }
                         {msgs}
                     </div>
                 </Paper>

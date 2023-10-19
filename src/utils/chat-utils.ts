@@ -2,9 +2,14 @@ import axios from 'axios';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { useStreaming, mainURL, getResponseURL, ChatRequest, ChatResponse } from './index';
 import { ChatRequestStream } from './data-model';
+import untruncateJson from "untruncate-json";
 
 
-export async function getResponse(req: ChatRequest): Promise<ChatResponse | undefined> {
+
+export async function getResponse(
+    req: ChatRequest,
+    setData?: (value: React.SetStateAction<any[]>) => void)
+    : Promise<ChatResponse | undefined> {
 
     let url = `${mainURL}${getResponseURL}`;
 
@@ -31,6 +36,8 @@ export async function getResponse(req: ChatRequest): Promise<ChatResponse | unde
 
             console.log(streamReq);
 
+            let response = "";
+
             await fetchEventSource(url, {
                 method: 'POST',
                 headers: {
@@ -38,17 +45,25 @@ export async function getResponse(req: ChatRequest): Promise<ChatResponse | unde
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(streamReq),
-                async onopen(res) {
-                    if (res.ok && res.status === 200) {
-                        console.log("Connection made ", res);
-                    } else if (res.status >= 400 && res.status < 500 && res.status !== 429) {
-                        console.log("Client-side error ", res);
-                    }
-                },
+                // async onopen(res) {
+                //     if (res.ok && res.status === 200) {
+                //         console.log("Connection made ", res);
+                //     } else if (res.status >= 400 && res.status < 500 && res.status !== 429) {
+                //         console.error("Client-side error ", res);
+                //     }
+                // },
                 onmessage(ev) {
-                    console.log(ev.data);
-                    const parsedData = JSON.parse(ev.data);
-                }
+                    if (ev.data === "<END>") {
+                        const parsedData = untruncateJson(response);
+                        console.log(parsedData);
+                        return;
+                    }
+                    response += ev.data;
+                    setData((data) => [...data, ev.data]);
+                },
+                onerror(err) {
+                    console.error(err)
+                },
             });
 
 
