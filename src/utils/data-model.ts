@@ -21,6 +21,14 @@ export type ChatResponse = {
     timestamp: number
 }
 
+export type ChatResponseStream = {
+    tutor_response: string,
+    follow_up_question: string,
+    question_completed: boolean,
+    question_level: string,
+    answer_is_correct: boolean
+}
+
 export type Message = {
     type: 'user' | 'bot',
     message: string,

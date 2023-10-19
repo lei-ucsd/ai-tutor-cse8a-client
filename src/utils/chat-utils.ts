@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { useStreaming, mainURL, getResponseURL, ChatRequest, ChatResponse } from './index';
-import { ChatRequestStream } from './data-model';
+import { useStreaming, mainURL, getResponseURL, ChatRequest, ChatResponse, ChatRequestStream, ChatResponseStream } from './index';
 import untruncateJson from "untruncate-json";
 
 
@@ -9,7 +8,9 @@ import untruncateJson from "untruncate-json";
 export async function getResponse(
     req: ChatRequest,
     setData?: (value: React.SetStateAction<any[]>) => void)
-    : Promise<ChatResponse | undefined> {
+    : Promise<any> {
+
+    // TODO fix types
 
     let url = `${mainURL}${getResponseURL}`;
 
@@ -38,33 +39,47 @@ export async function getResponse(
 
             let response = "";
 
-            await fetchEventSource(url, {
-                method: 'POST',
-                headers: {
-                    Accept: "text/event-stream",
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(streamReq),
-                // async onopen(res) {
-                //     if (res.ok && res.status === 200) {
-                //         console.log("Connection made ", res);
-                //     } else if (res.status >= 400 && res.status < 500 && res.status !== 429) {
-                //         console.error("Client-side error ", res);
-                //     }
-                // },
-                onmessage(ev) {
-                    if (ev.data === "<END>") {
-                        const parsedData = untruncateJson(response);
-                        console.log(parsedData);
-                        return;
-                    }
-                    response += ev.data;
-                    setData((data) => [...data, ev.data]);
-                },
-                onerror(err) {
-                    console.error(err)
-                },
+            const fetchPromise = new Promise((resolve, reject) => {
+
+                (async () => {
+
+                    await fetchEventSource(url, {
+                        method: 'POST',
+                        headers: {
+                            Accept: "text/event-stream",
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(streamReq),
+                        async onopen(res) {
+                            if (res.status >= 400 && res.status < 500 && res.status !== 429) {
+                                console.error("Client-side error ", res);
+                                reject(res);
+                            }
+                        },
+                        onmessage(ev) {
+                            if (ev.data === "<END>") {
+                                const parsedData = untruncateJson(response);
+                                console.log(parsedData);
+                                const res = JSON.parse(parsedData) as ChatResponseStream;
+                                resolve(res);
+                                return;
+                            }
+                            response += ev.data;
+                            setData((data) => [...data, ev.data]);
+                        },
+                        onerror(err) {
+                            console.error(err)
+                            reject(err);
+                        },
+                    });
+                })();
+
             });
+
+
+            // TODO fix types here (for error cases)
+            const data = await fetchPromise;
+            return data;
 
 
         } else {

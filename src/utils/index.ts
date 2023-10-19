@@ -1,4 +1,4 @@
-import { ChatRequest, ChatResponse, Message } from "./data-model";
+import { ChatRequest, ChatResponse, Message, ChatResponseStream, ChatRequestStream } from "./data-model";
 import { getResponse } from "./chat-utils";
 import siteConfig from '@generated/docusaurus.config';
 
@@ -13,4 +13,4 @@ export const mainURL = useStreaming ? LOCAL_SERVER : 'https://gilpasternak35.pyt
 export const getResponseURL = useStreaming ? '/response' : '/';
 
 
-export {ChatRequest, ChatResponse, Message, getResponse};
+export {ChatRequest, ChatResponse, ChatResponseStream, ChatRequestStream, Message, getResponse};

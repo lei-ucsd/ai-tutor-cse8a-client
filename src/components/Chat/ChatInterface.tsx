@@ -108,15 +108,47 @@ export default function ChatInterface() {
             //         setTimeout(() => {
             //             setData((data) => [...data, "."])
             //         }, 300);
-    
+
             //     }
             // // }, 500)
 
             getResponse(req, setData)
-            .then(() => {
-                // TODO: copy the current AI message to the list of messages, 
-                // reset data to undefined
-            });
+                .then((res) => {
+                    const msg = res.tutor_response;
+                    console.log("msg: ", msg)
+                    const finalAIMsg = <MessageOther
+                        message={msg}
+                        timestamp=""
+                        displayName="AI Tutor"
+                        avatarDisp={true}
+                    />
+
+                    newMsgs.push({
+                        type: 'bot',
+                        message: msg
+                    });
+
+                    setMsgs(
+                        [
+                            finalAIMsg,
+                            ...newRenderedMsgs
+                        ]
+                    );
+
+                    setRawMsgs(newMsgs);
+
+                    setData([]);
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+
+            // TODO: copy the current AI message to the list of messages, 
+            // reset data to undefined
+            // TODO error handling
+
+
+            // setData([]);
 
 
 
