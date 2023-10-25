@@ -38,6 +38,7 @@ export async function getResponse(
             console.log(streamReq);
 
             let response = "";
+            let parsedResponse = undefined;
 
             const fetchPromise = new Promise((resolve, reject) => {
 
@@ -58,14 +59,14 @@ export async function getResponse(
                         },
                         onmessage(ev) {
                             if (ev.data === "<END>") {
-                                const parsedData = untruncateJson(response);
-                                console.log(parsedData);
-                                const res = JSON.parse(parsedData) as ChatResponseStream;
-                                resolve(res);
+                                resolve(parsedResponse);
                                 return;
                             }
                             response += ev.data;
-                            setData((data) => [...data, ev.data]);
+                            parsedResponse = completeJSON(response);
+                            // console.log("parsedResponse", parsedResponse);
+
+                            setData((data) => [...data, parsedResponse]);
                         },
                         onerror(err) {
                             console.error(err)
@@ -118,4 +119,36 @@ export function escapeHTML(text: string) {
         .replace(/\?/g, "&quest;")
         .replace(/\n/g, "__________")
         .replace(/ /g, "%20")
+}
+
+function completeJSON(incompleteJSON: string): ChatResponseStream {
+    const jsonStr = untruncateJson(incompleteJSON);
+    let res = undefined;
+    try {
+        res = JSON.parse(jsonStr);
+    } catch (e) {
+        console.warn('Error parsing JSON', e);
+        res = {};
+    }
+    if (!('tutor_response' in res)) {
+        res.tutor_response = '';
+    }
+
+    if (!('follow_up_question' in res)) {
+        res.follow_up_question = '';
+    }
+
+    if (!('question_completed' in res)) {
+        res.question_completed = false;
+    }
+
+    if (!('question_level' in res)) {
+        res.question_level = '';
+    }
+
+    if (!('answer_is_correct' in res)) {
+        res.answer_is_correct = false;
+    }
+
+    return res as ChatResponseStream;
 }

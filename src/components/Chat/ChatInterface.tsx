@@ -5,7 +5,7 @@ import { TextInput } from "./TextInput";
 import { MessageOther, MessageSelf } from "./Message";
 import { useState } from "react";
 import LoadingSpinner from "../UtilElements/LoadingSpinner";
-import { ChatRequest, getResponse, Message, useStreaming } from "@site/src/utils";
+import { ChatRequest, ChatRequestStream, ChatResponseStream, getResponse, Message, useStreaming } from "@site/src/utils";
 
 
 const initRawMsgs: Message[] = [
@@ -98,19 +98,6 @@ export default function ChatInterface() {
             ]
 
             setMsgs(newRenderedMsgs);
-
-
-            // // setTimeout(() => {
-            //     console.log(data)
-
-            //     for (let i = 0; i < 10; i++) {
-
-            //         setTimeout(() => {
-            //             setData((data) => [...data, "."])
-            //         }, 300);
-
-            //     }
-            // // }, 500)
 
             getResponse(req, setData)
                 .then((res) => {
@@ -244,20 +231,22 @@ export default function ChatInterface() {
 
 
     return (
-        <div className="chatContainer">
+        <div className="chatContainer" key="chat-container">
             <Paper className="paper" elevation={0}>
-                <Paper id="style-1" className="messagesBody">
-                    <div className="messages">
+                <Paper id="style-1" className="messagesBody" key="messages-body">
+                    <div className="messages" key="messages">
                         {showSpinner ? spinner : <></>}
                         {/* most recent AI message */}
                         {
 
                             data.length > 0 ?
                                 <MessageOther
-                                    message={data.join("")}
+                                    // message={data.join("")}
+                                    message={getRenderedMsg(data)}
                                     timestamp=""
                                     displayName="AI Tutor"
                                     avatarDisp={true}
+                                    key="ai-msg"
                                 />
                                 : <></>
                         }
@@ -283,4 +272,14 @@ function getHistory(msgs: Message[]) {
     }
 
     return history;
+}
+
+function getRenderedMsg(data: ChatResponseStream[]) {
+    const tutorResponse = data[data.length - 1].tutor_response;
+    const followUpQuestion = data[data.length - 1].follow_up_question;
+    if (followUpQuestion !== '') {
+        return tutorResponse + '\n\n' + followUpQuestion;
+    } else {
+        return tutorResponse;
+    }
 }
