@@ -125,20 +125,33 @@ export default function ChatInterface() {
                     setRawMsgs(newMsgs);
 
                     setData([]);
+
+                    if (res['current_step'] === "") {
+                        setCurrentStep("understand");
+                    } else {
+                        if (res['current_step'] !== currentStep) {
+                            setCorrectSoFar(0);
+                            // TODO: check if the logic for set questions still works
+                            setQuestions(undefined);
+                        }
+                        setCurrentStep(res['current_step']);
+                    }
+    
+                    if (res['answer_is_correct'] === "true") {
+                        setCorrectSoFar(correctSoFar + 1);
+                    }
+
+                    // TODO: if res['question_requested'], send a request for streaming questions 
+                    // and set the stream result using setQuestions
+    
+                    // if (res['questions']) {
+                    //     setQuestions(res['questions']);
+                    // }
+
                 })
                 .catch((err) => {
                     console.error(err);
                 });
-
-            // TODO: copy the current AI message to the list of messages, 
-            // reset data to undefined
-            // TODO error handling
-
-
-            // setData([]);
-
-
-
 
 
         } else {
