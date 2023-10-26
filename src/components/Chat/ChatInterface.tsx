@@ -25,7 +25,7 @@ const initMsgs = [
 ]
 
 // TODO: the back end supports up to analyze at the moment
-const bloomTaxonomy = ['create', 'evaluate', 'analyze', 'apply', 'understand'];
+const bloomTaxonomy = ['create', 'evaluate', 'analyze', 'apply', 'understand', 'remember'];
 
 // hard coded threshold for all steps
 const THRESHOLD = 3;
@@ -130,11 +130,16 @@ export default function ChatInterface() {
                         setCurrentStep("understand");
                     } else {
                         if (res['current_step'] !== currentStep) {
-                            setCorrectSoFar(0);
-                            // TODO: check if the logic for set questions still works
-                            setQuestions(undefined);
-                        }
-                        setCurrentStep(res['current_step']);
+                            const idxCurrent = bloomTaxonomy.indexOf(currentStep);
+                            const idxNew = bloomTaxonomy.indexOf(res['current_step']);
+                            if (idxNew < idxCurrent) {
+                                // stage moves forward, should reset it on the client side
+                                setCorrectSoFar(0);
+                                // TODO: check if the logic for set questions still works
+                                setQuestions(undefined);
+                                setCurrentStep(res['current_step']);
+                            }
+                        }   
                     }
     
                     if (res['answer_is_correct'] === "true") {
