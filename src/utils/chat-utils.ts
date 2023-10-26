@@ -3,6 +3,17 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { useStreaming, mainURL, getResponseURL, ChatRequest, ChatResponse, ChatRequestStream, ChatResponseStream } from './index';
 import untruncateJson from "untruncate-json";
 
+const responseKeys = [
+    'tutor_response',
+    'follow_up_question',
+    'question_requested',
+    'question_level',
+    'answer_is_correct'
+];
+
+const questionKeys = [
+    // TODO
+]
 
 
 export async function getResponse(
@@ -59,11 +70,12 @@ export async function getResponse(
                         },
                         onmessage(ev) {
                             if (ev.data === "<END>") {
+                                console.log(parsedResponse);
                                 resolve(parsedResponse);
                                 return;
                             }
                             response += ev.data;
-                            parsedResponse = completeJSON(response);
+                            parsedResponse = completeJSON(response, responseKeys);
                             // console.log("parsedResponse", parsedResponse);
 
                             setData((data) => [...data, parsedResponse]);
@@ -121,7 +133,7 @@ export function escapeHTML(text: string) {
         .replace(/ /g, "%20")
 }
 
-function completeJSON(incompleteJSON: string): ChatResponseStream {
+function completeJSON(incompleteJSON: string, defaultValues: string[]): ChatResponseStream {
     const jsonStr = untruncateJson(incompleteJSON);
     let res = undefined;
     try {
@@ -130,24 +142,11 @@ function completeJSON(incompleteJSON: string): ChatResponseStream {
         console.warn('Error parsing JSON', e);
         res = {};
     }
-    if (!('tutor_response' in res)) {
-        res.tutor_response = '';
-    }
 
-    if (!('follow_up_question' in res)) {
-        res.follow_up_question = '';
-    }
-
-    if (!('question_completed' in res)) {
-        res.question_completed = false;
-    }
-
-    if (!('question_level' in res)) {
-        res.question_level = '';
-    }
-
-    if (!('answer_is_correct' in res)) {
-        res.answer_is_correct = false;
+    for (const key of defaultValues) {
+        if (!(key in res)) {
+            res[key] = '';
+        }
     }
 
     return res as ChatResponseStream;

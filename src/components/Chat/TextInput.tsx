@@ -17,7 +17,7 @@ export function TextInput({ onAddMsg }) {
                     className="wrapText"
                     value={value}
                     onChange={(x) => {
-                        console.log(x);
+                        // console.log(x);
                         setValue(x)
                     }}
                 />

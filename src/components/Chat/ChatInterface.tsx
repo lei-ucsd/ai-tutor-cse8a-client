@@ -142,6 +142,8 @@ export default function ChatInterface() {
 
 
         } else {
+            // code for the non-streaming (outdated) backend
+            // TODO refactor out
             if (rawMsgs.length > 1) {
                 req.history = getHistory(rawMsgs);
             }
