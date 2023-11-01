@@ -145,9 +145,6 @@ export default function ChatInterface() {
                     if (res['answer_is_correct'] === "true") {
                         setCorrectSoFar(correctSoFar + 1);
                     }
-
-                    // TODO: if res['question_requested'], send a request for streaming questions 
-                    // and set the stream result using setQuestions
     
                     // if (res['questions']) {
                     //     setQuestions(res['questions']);

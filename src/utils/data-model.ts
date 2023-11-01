@@ -13,7 +13,8 @@ export type ChatRequest = {
 export type ChatRequestStream = {
     name: string,
     chat_history?: string,
-    last_question?: string
+    last_question?: string,
+    include_prefix: boolean
 }
 
 export type ChatResponse = {

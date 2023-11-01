@@ -6,7 +6,7 @@ import untruncateJson from "untruncate-json";
 const responseKeys = [
     'tutor_response',
     'follow_up_question',
-    'question_requested',
+    'question_completed',
     'question_level',
     'answer_is_correct'
 ];
@@ -44,7 +44,7 @@ export async function getResponse(
 
             const chat_history_text = chat_history ?? '';
             // TODO: figure out how to add the last question
-            const streamReq = { name, chat_history: chat_history_text, last_question: '' } as ChatRequestStream;
+            const streamReq = { name, chat_history: chat_history_text, last_question: '', include_prefix: true } as ChatRequestStream;
 
             console.log(streamReq);
 
