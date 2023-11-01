@@ -25,9 +25,9 @@ export type ChatResponse = {
 export type ChatResponseStream = {
     tutor_response: string,
     follow_up_question: string,
-    question_completed: boolean,
+    question_completed: string,
     question_level: string,
-    answer_is_correct: boolean
+    answer_is_correct: string
 }
 
 export type Message = {
