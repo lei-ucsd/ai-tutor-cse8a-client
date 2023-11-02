@@ -47,7 +47,7 @@ export async function getQuestion(
                             return;
                         }
                         response += ev.data;
-                        console.log(response)
+                        console.log(ev.data)
 
                         setRawQuestionData((data) => [...data, response]);
                     },
