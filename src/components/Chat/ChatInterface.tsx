@@ -32,9 +32,11 @@ const THRESHOLD = 1;
 
 export default function ChatInterface() {
 
-    const [currentStep, setCurrentStep] = useState(undefined);
+    const [questionLevel, setQuestionLevel] = useState(undefined);
 
-    const [questions, setQuestions] = useState(undefined);
+    const [previousQuestions, setPreviousQuestions] = useState(undefined);
+
+    const [question, setQuestion] = useState(undefined);
 
     const [rawMsgs, setRawMsgs] = useState(initRawMsgs);
 
@@ -64,13 +66,14 @@ export default function ChatInterface() {
             threshold: THRESHOLD
         }
 
-        if (currentStep) {
-            req.current_step = currentStep;
+        // TODO refactor out
+        if (questionLevel) {
+            req.current_step = questionLevel;
         }
 
-
-        if (questions) {
-            req.questions = JSON.stringify(questions);
+        // TODO refactor out
+        if (previousQuestions) {
+            req.questions = JSON.stringify(previousQuestions);
         }
 
         const newMsgs: Message[] = [
@@ -101,7 +104,7 @@ export default function ChatInterface() {
 
             getResponse(req, setData)
                 .then((res) => {
-                    const msg = res.tutor_response + '\n\n' + res.follow_up_question;
+                    const msg = renderTutorResponse(res.tutor_response, res.follow_up_question, res.question_completed, questionLevel);
                     console.log("msg: ", msg)
 
                     const [msgElems, msgData] = updateMsgList(msg, 'AI Tutor', newMsgs, newRenderedMsgs, setMsgs, setRawMsgs);
@@ -110,15 +113,15 @@ export default function ChatInterface() {
 
 
                     // track correctness
-                    if (currentStep && res.answer_is_correct === "true") {
+                    if (questionLevel && res.answer_is_correct === "true") {
                         setCorrectSoFar(correctSoFar + 1);
                     }
 
                     // update current step if correctSoFar reaches threashold
                     if (correctSoFar === THRESHOLD) {
-                        const idxCurrent = bloomsTaxonomy.indexOf(currentStep);
+                        const idxCurrent = bloomsTaxonomy.indexOf(questionLevel);
                         const idxNew = idxCurrent + 1;
-                        if (currentStep === 'analyze' || idxNew === bloomsTaxonomy.length) {
+                        if (questionLevel === 'analyze' || idxNew === bloomsTaxonomy.length) {
                             // the backend only reasonably supports steps up to `analyze`; 
                             // however, user might reach `create` if their first question is determined to be at that level
                             // we should end the conversation whenever (1) the step naturally reaches beyond 'analyze' or (2) the user finishes 'create'
@@ -127,20 +130,21 @@ export default function ChatInterface() {
                             const msg = 'Congratulations! You have successfully completed reviewing the concept! Would you like to review another concept?';
                             const _ = updateMsgList(msg, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
                         } else {
-                            const idx = bloomsTaxonomy.indexOf(currentStep);
+                            const idx = bloomsTaxonomy.indexOf(questionLevel);
                             const newStep = bloomsTaxonomy[idx + 1];
-                            setCurrentStep(newStep);
+                            setQuestionLevel(newStep);
                             setCorrectSoFar(0);
                             // TODO reset previous questions
                             // TODO reset last question
                         }
                     }
 
-                    if (!currentStep && res.question_level !== "") {
-                        setCurrentStep(res.question_level);
+                    if (!questionLevel && res.question_level !== "") {
+                        setQuestionLevel(res.question_level);
+                        // TODO stream question
                     }
 
-                    console.log(currentStep, correctSoFar);
+                    console.log(questionLevel, correctSoFar);
 
                 })
                 .catch((err) => {
@@ -200,11 +204,11 @@ export default function ChatInterface() {
                     alert('Error: current_step not found in response.');
                     console.error(res);
                 } else {
-                    if (res['current_step'] !== currentStep) {
+                    if (res['current_step'] !== questionLevel) {
                         setCorrectSoFar(0);
-                        setQuestions(undefined);
+                        setPreviousQuestions(undefined);
                     }
-                    setCurrentStep(res['current_step']);
+                    setQuestionLevel(res['current_step']);
                 }
 
                 if (res['correct'] === true) {
@@ -212,7 +216,7 @@ export default function ChatInterface() {
                 }
 
                 if (res['questions']) {
-                    setQuestions(res['questions']);
+                    setPreviousQuestions(res['questions']);
                 }
 
             } else {
@@ -251,7 +255,7 @@ export default function ChatInterface() {
                             data.length > 0 ?
                                 <MessageOther
                                     // message={data.join("")}
-                                    message={getRenderedMsg(data)}
+                                    message={getRenderedMsg(data, questionLevel)}
                                     timestamp=""
                                     displayName="AI Tutor"
                                     avatarDisp={true}
@@ -283,10 +287,16 @@ function getHistory(msgs: Message[]) {
     return history;
 }
 
-function getRenderedMsg(data: ChatResponseStream[]) {
+function getRenderedMsg(data: ChatResponseStream[], questionLevel: string | undefined) {
     const tutorResponse = data[data.length - 1].tutor_response;
     const followUpQuestion = data[data.length - 1].follow_up_question;
-    if (followUpQuestion !== '') {
+    const questionCompleted = data[data.length - 1].question_completed;
+    return renderTutorResponse(tutorResponse, followUpQuestion, questionCompleted, questionLevel);
+}
+
+
+function renderTutorResponse(tutorResponse: string, followUpQuestion: string, questionCompleted: string, questionLevel: string | undefined) {
+    if (followUpQuestion !== '' && questionCompleted === 'false' && questionLevel) {
         return tutorResponse + '\n\n' + followUpQuestion;
     } else {
         return tutorResponse;
