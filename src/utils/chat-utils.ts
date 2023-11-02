@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { useStreaming, mainURL, getResponseURL, ChatRequest, ChatResponse, ChatRequestStream, ChatResponseStream } from './index';
+import { useStreaming, mainURL, getResponseURL, getQuestionURL, ChatRequest, ChatRequestStream, ChatResponseStream } from './index';
 import untruncateJson from "untruncate-json";
+import { QuestionRequestStream } from './data-model';
 
 const responseKeys = [
     'tutor_response',
@@ -12,12 +13,67 @@ const responseKeys = [
 ];
 
 const questionKeys = [
-    // TODO
+    'question'
 ]
+
+export async function getQuestion(
+    req: QuestionRequestStream,
+    setRawQuestionData: (value: React.SetStateAction<any[]>) => void
+): Promise<any> {
+    const url = `${mainURL}${getQuestionURL}`;
+
+    try {
+        let response = "";
+        const fetchPromise = new Promise((resolve, reject) => {
+            (async () => {
+
+                await fetchEventSource(url, {
+                    method: 'POST',
+                    headers: {
+                        Accept: "text/event-stream",
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(req),
+                    async onopen(res) {
+                        if (res.status >= 400 && res.status < 500 && res.status !== 429) {
+                            console.error("Client-side error ", res);
+                            reject(res);
+                        }
+                    },
+                    onmessage(ev) {
+                        if (ev.data === "<END>") {
+                            console.log(response);
+                            resolve(response);
+                            return;
+                        }
+                        response += ev.data;
+                        console.log(response)
+
+                        setRawQuestionData((data) => [...data, response]);
+                    },
+                    onerror(err) {
+                        console.error(err)
+                        reject(err);
+                    },
+                });
+
+            })();
+        });
+
+        const data = await fetchPromise;
+        return data;
+
+    } catch (e) {
+        console.error(e);
+        alert('Error getting response from server');
+        return undefined;
+    }
+}
 
 
 export async function getResponse(
     req: ChatRequest,
+    lastQuestion?: string,
     setData?: (value: React.SetStateAction<any[]>) => void)
     : Promise<any> {
 
@@ -44,7 +100,7 @@ export async function getResponse(
 
             const chat_history_text = chat_history ?? '';
             // TODO: figure out how to add the last question
-            const streamReq = { name, chat_history: chat_history_text, last_question: '', include_prefix: true } as ChatRequestStream;
+            const streamReq = { name, chat_history: chat_history_text, last_question: lastQuestion, include_prefix: true } as ChatRequestStream;
 
             console.log(streamReq);
 

@@ -15,6 +15,7 @@ export const mainURL = LOCAL ? LOCAL_SERVER : 'https://lei.ucsd.edu:5445';
 // TODO: update end points accordingly
 // export const getResponseURL = useStreaming ? '/response' : '/';
 export const getResponseURL = '/response';
+export const getQuestionURL = '/question';
 
 
 export {ChatRequest, ChatResponse, ChatResponseStream, ChatRequestStream, Message, getResponse};

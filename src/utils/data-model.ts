@@ -30,6 +30,12 @@ export type ChatResponseStream = {
     answer_is_correct: string
 }
 
+export type QuestionRequestStream = {
+    bloom_level: string,
+    previous_questions: string[],
+    include_prefix: boolean
+}
+
 export type Message = {
     type: 'user' | 'bot',
     message: string,

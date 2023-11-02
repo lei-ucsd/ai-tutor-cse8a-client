@@ -6,6 +6,8 @@ import { MessageOther, MessageSelf } from "./Message";
 import { useState } from "react";
 import LoadingSpinner from "../UtilElements/LoadingSpinner";
 import { ChatRequest, ChatRequestStream, ChatResponseStream, getResponse, Message, useStreaming } from "@site/src/utils";
+import { QuestionRequestStream } from "@site/src/utils/data-model";
+import { getQuestion } from "@site/src/utils/chat-utils";
 
 
 const initRawMsgs: Message[] = [
@@ -34,15 +36,17 @@ export default function ChatInterface() {
 
     const [questionLevel, setQuestionLevel] = useState(undefined);
 
-    const [previousQuestions, setPreviousQuestions] = useState(undefined);
+    const [previousQuestions, setPreviousQuestions] = useState([]);
 
-    const [question, setQuestion] = useState(undefined);
+    const [lastQuestion, setLastQuestion] = useState(undefined);
 
     const [rawMsgs, setRawMsgs] = useState(initRawMsgs);
 
     const [msgs, setMsgs] = useState(initMsgs);
 
-    const [data, setData] = useState([]);
+    const [rawResponseData, setRawResponseData] = useState([]);
+
+    const [rawQuestionData, setRawQuestionData] = useState([]);
 
     const [showSpinner, setShowSpinner] = useState(false);
 
@@ -63,7 +67,7 @@ export default function ChatInterface() {
             timestamp: Date.now(),
             message: msg,
             correctSoFar: correctSoFar,
-            threshold: THRESHOLD
+            threshold: THRESHOLD,
         }
 
         // TODO refactor out
@@ -102,23 +106,25 @@ export default function ChatInterface() {
 
             setMsgs(newRenderedMsgs);
 
-            getResponse(req, setData)
+            getResponse(req, lastQuestion ?? '', setRawResponseData)
                 .then((res) => {
                     const msg = renderTutorResponse(res.tutor_response, res.follow_up_question, res.question_completed, questionLevel);
                     console.log("msg: ", msg)
 
                     const [msgElems, msgData] = updateMsgList(msg, 'AI Tutor', newMsgs, newRenderedMsgs, setMsgs, setRawMsgs);
 
-                    setData([]);
+                    setRawResponseData([]);
 
 
+                    let newCorrectSoFar = correctSoFar;
                     // track correctness
                     if (questionLevel && res.answer_is_correct === "true") {
-                        setCorrectSoFar(correctSoFar + 1);
+                        newCorrectSoFar += 1;
+                        setCorrectSoFar(newCorrectSoFar);
                     }
 
                     // update current step if correctSoFar reaches threashold
-                    if (correctSoFar === THRESHOLD) {
+                    if (newCorrectSoFar === THRESHOLD) {
                         const idxCurrent = bloomsTaxonomy.indexOf(questionLevel);
                         const idxNew = idxCurrent + 1;
                         if (questionLevel === 'analyze' || idxNew === bloomsTaxonomy.length) {
@@ -129,22 +135,55 @@ export default function ChatInterface() {
                             // TODO backend support?
                             const msg = 'Congratulations! You have successfully completed reviewing the concept! Would you like to review another concept?';
                             const _ = updateMsgList(msg, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
+                            // TODO reset question level?
                         } else {
                             const idx = bloomsTaxonomy.indexOf(questionLevel);
                             const newStep = bloomsTaxonomy[idx + 1];
                             setQuestionLevel(newStep);
                             setCorrectSoFar(0);
-                            // TODO reset previous questions
-                            // TODO reset last question
+                            // reset previous questions
+                            setPreviousQuestions([]);
+                            // reset last question
+                            setLastQuestion(undefined);
                         }
                     }
 
+                    let newQuestionLevel = questionLevel;
                     if (!questionLevel && res.question_level !== "") {
-                        setQuestionLevel(res.question_level);
-                        // TODO stream question
+                        newQuestionLevel = res.question_level;
+                        setQuestionLevel(newQuestionLevel);
                     }
 
-                    console.log(questionLevel, correctSoFar);
+                    console.log(newQuestionLevel, correctSoFar);
+
+                    if (res.question_completed === "true" && newQuestionLevel || newQuestionLevel && !questionLevel) {
+                        // stream question if just reaching a new level or completing a question
+                        // TODO refactor using abstraction
+
+                        const questionReq: QuestionRequestStream = {
+                            bloom_level: newQuestionLevel,
+                            previous_questions: previousQuestions,
+                            include_prefix: true
+                        }
+
+                        console.log('questionReq: ', questionReq);
+
+                        getQuestion(questionReq, setRawQuestionData)
+                            .then((res) => {
+                                const question = res;
+                                console.log('question: ', question);
+
+                                // final rendering and reset state
+                                const _ = updateMsgList(question, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
+                                setRawQuestionData([]);
+
+                                setLastQuestion(question);
+                                setPreviousQuestions([...previousQuestions, question]);
+                            })
+                            .catch((err) => {
+                                console.error(err);
+                            });
+                    }
 
                 })
                 .catch((err) => {
@@ -251,11 +290,23 @@ export default function ChatInterface() {
                         {showSpinner ? spinner : <></>}
                         {/* most recent AI message */}
                         {
-
-                            data.length > 0 ?
+                            rawQuestionData.length > 0 ?
                                 <MessageOther
                                     // message={data.join("")}
-                                    message={getRenderedMsg(data, questionLevel)}
+                                    message={getRenderedQuestion(rawQuestionData)}
+                                    timestamp=""
+                                    displayName="AI Tutor"
+                                    avatarDisp={true}
+                                    key="ai-question"
+                                />
+                                : <></>
+                        }
+                        {
+
+                            rawResponseData.length > 0 ?
+                                <MessageOther
+                                    // message={data.join("")}
+                                    message={getRenderedResponse(rawResponseData, questionLevel)}
                                     timestamp=""
                                     displayName="AI Tutor"
                                     avatarDisp={true}
@@ -287,11 +338,12 @@ function getHistory(msgs: Message[]) {
     return history;
 }
 
-function getRenderedMsg(data: ChatResponseStream[], questionLevel: string | undefined) {
+function getRenderedResponse(data: ChatResponseStream[], questionLevel: string | undefined) {
     const tutorResponse = data[data.length - 1].tutor_response;
-    const followUpQuestion = data[data.length - 1].follow_up_question;
-    const questionCompleted = data[data.length - 1].question_completed;
-    return renderTutorResponse(tutorResponse, followUpQuestion, questionCompleted, questionLevel);
+    // const followUpQuestion = data[data.length - 1].follow_up_question;
+    // const questionCompleted = data[data.length - 1].question_completed;
+    // return renderTutorResponse(tutorResponse, followUpQuestion, questionCompleted, questionLevel);
+    return tutorResponse;
 }
 
 
@@ -301,6 +353,11 @@ function renderTutorResponse(tutorResponse: string, followUpQuestion: string, qu
     } else {
         return tutorResponse;
     }
+}
+
+function getRenderedQuestion(data: string[]) {
+    const question = data[data.length - 1];
+    return question;
 }
 
 function updateMsgList(
@@ -347,3 +404,31 @@ function updateMsgList(
 
     return [newMsgElems, msgData];
 }
+
+// async function streamQuestion(
+//     questionReq: QuestionRequestStream,
+//     msgData: Message[],
+//     msgElems: React.JSX.Element[],
+//     previousQuestions: string[],
+//     setRawQuestionData: (data: QuestionResponseStream[]) => void,
+//     setMsgs: (msgs: React.JSX.Element[]) => void,
+//     setRawMsgs: (msgs: Message[]) => void,
+//     setLastQuestion: (question: string) => void,
+//     setPreviousQuestions: (questions: string[]) => void,
+// ): Promise<any> {
+//     getQuestion(questionReq, setRawQuestionData)
+//         .then((res) => {
+//             const question = res.question;
+//             console.log('question: ', question);
+
+//             // final rendering and reset state
+//             const _ = updateMsgList(question, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
+//             setRawQuestionData([]);
+
+//             setLastQuestion(question);
+//             setPreviousQuestions([...previousQuestions, question]);
+//         })
+//         .catch((err) => {
+//             console.error(err);
+//         });
+// }
