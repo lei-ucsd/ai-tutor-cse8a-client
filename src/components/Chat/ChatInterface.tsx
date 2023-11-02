@@ -28,7 +28,7 @@ const initMsgs = [
 const bloomsTaxonomy = ['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'];
 
 // hard coded threshold for all steps
-const THRESHOLD = 3;
+const THRESHOLD = 1;
 
 export default function ChatInterface() {
 
@@ -104,75 +104,43 @@ export default function ChatInterface() {
                     const msg = res.tutor_response + '\n\n' + res.follow_up_question;
                     console.log("msg: ", msg)
 
-                    updateMsgList(msg, 'AI Tutor', newMsgs, newRenderedMsgs, setMsgs, setRawMsgs);
-
-                    // const finalAIMsg = <MessageOther
-                    //     message={msg}
-                    //     timestamp=""
-                    //     displayName="AI Tutor"
-                    //     avatarDisp={true}
-                    // />
-
-                    // newMsgs.push({
-                    //     type: 'bot',
-                    //     message: msg
-                    // });
-
-                    // setMsgs(
-                    //     [
-                    //         finalAIMsg,
-                    //         ...newRenderedMsgs
-                    //     ]
-                    // );
-
-                    // setRawMsgs(newMsgs);
+                    const [msgElems, msgData] = updateMsgList(msg, 'AI Tutor', newMsgs, newRenderedMsgs, setMsgs, setRawMsgs);
 
                     setData([]);
 
-                    /*
+
                     // track correctness
-                    if (res.answer_is_correct === "true") {
+                    if (currentStep && res.answer_is_correct === "true") {
                         setCorrectSoFar(correctSoFar + 1);
                     }
 
-                    // track current step
+                    // update current step if correctSoFar reaches threashold
                     if (correctSoFar === THRESHOLD) {
-                        if (currentStep === 'analyze') {
-                            // end the conversation
+                        const idxCurrent = bloomsTaxonomy.indexOf(currentStep);
+                        const idxNew = idxCurrent + 1;
+                        if (currentStep === 'analyze' || idxNew === bloomsTaxonomy.length) {
+                            // the backend only reasonably supports steps up to `analyze`; 
+                            // however, user might reach `create` if their first question is determined to be at that level
+                            // we should end the conversation whenever (1) the step naturally reaches beyond 'analyze' or (2) the user finishes 'create'
+
                             // TODO backend support?
                             const msg = 'Congratulations! You have successfully completed reviewing the concept! Would you like to review another concept?';
-
-                        }
-                        const idx = bloomsTaxonomy.indexOf(currentStep);
-                        const newStep = bloomsTaxonomy[idx + 1];
-                        setCurrentStep(newStep);
-                        setCorrectSoFar(0);
-                    }
-                    */
-
-                    if (res['current_step'] === "") {
-                        setCurrentStep("understand");
-                    } else {
-                        if (res['current_step'] !== currentStep) {
-                            const idxCurrent = bloomsTaxonomy.indexOf(currentStep);
-                            const idxNew = bloomsTaxonomy.indexOf(res['current_step']);
-                            if (idxNew < idxCurrent) {
-                                // stage moves forward, should reset it on the client side
-                                setCorrectSoFar(0);
-                                // TODO: check if the logic for set questions still works
-                                setQuestions(undefined);
-                                setCurrentStep(res['current_step']);
-                            }
+                            const _ = updateMsgList(msg, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
+                        } else {
+                            const idx = bloomsTaxonomy.indexOf(currentStep);
+                            const newStep = bloomsTaxonomy[idx + 1];
+                            setCurrentStep(newStep);
+                            setCorrectSoFar(0);
+                            // TODO reset previous questions
+                            // TODO reset last question
                         }
                     }
 
-                    if (res['answer_is_correct'] === "true") {
-                        setCorrectSoFar(correctSoFar + 1);
+                    if (!currentStep && res.question_level !== "") {
+                        setCurrentStep(res.question_level);
                     }
 
-                    // if (res['questions']) {
-                    //     setQuestions(res['questions']);
-                    // }
+                    console.log(currentStep, correctSoFar);
 
                 })
                 .catch((err) => {
@@ -325,7 +293,14 @@ function getRenderedMsg(data: ChatResponseStream[]) {
     }
 }
 
-function updateMsgList(msg: string, role: string, msgData: Message[], existingMsgElems: React.JSX.Element[], setMsgs: (msgs: React.JSX.Element[]) => void, setRawMsgs: (msgs: Message[]) => void) {
+function updateMsgList(
+    msg: string,
+    role: string,
+    msgData: Message[],
+    existingMsgElems: React.JSX.Element[],
+    setMsgs: (msgs: React.JSX.Element[]) => void,
+    setRawMsgs: (msgs: Message[]) => void
+): [React.JSX.Element[], Message[]] {
 
     const msgElem = role === "AI Tutor" ?
         (
@@ -349,12 +324,16 @@ function updateMsgList(msg: string, role: string, msgData: Message[], existingMs
         message: msg
     });
 
+    const newMsgElems = [
+        msgElem,
+        ...existingMsgElems
+    ];
+
     setMsgs(
-        [
-            msgElem,
-            ...existingMsgElems
-        ]
+        newMsgElems
     );
 
     setRawMsgs(msgData);
+
+    return [newMsgElems, msgData];
 }
