@@ -25,7 +25,7 @@ const initMsgs = [
 ]
 
 // TODO: the back end supports up to analyze at the moment
-const bloomTaxonomy = ['create', 'evaluate', 'analyze', 'apply', 'understand', 'remember'];
+const bloomsTaxonomy = ['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'];
 
 // hard coded threshold for all steps
 const THRESHOLD = 3;
@@ -103,35 +103,59 @@ export default function ChatInterface() {
                 .then((res) => {
                     const msg = res.tutor_response + '\n\n' + res.follow_up_question;
                     console.log("msg: ", msg)
-                    const finalAIMsg = <MessageOther
-                        message={msg}
-                        timestamp=""
-                        displayName="AI Tutor"
-                        avatarDisp={true}
-                    />
 
-                    newMsgs.push({
-                        type: 'bot',
-                        message: msg
-                    });
+                    updateMsgList(msg, 'AI Tutor', newMsgs, newRenderedMsgs, setMsgs, setRawMsgs);
 
-                    setMsgs(
-                        [
-                            finalAIMsg,
-                            ...newRenderedMsgs
-                        ]
-                    );
+                    // const finalAIMsg = <MessageOther
+                    //     message={msg}
+                    //     timestamp=""
+                    //     displayName="AI Tutor"
+                    //     avatarDisp={true}
+                    // />
 
-                    setRawMsgs(newMsgs);
+                    // newMsgs.push({
+                    //     type: 'bot',
+                    //     message: msg
+                    // });
+
+                    // setMsgs(
+                    //     [
+                    //         finalAIMsg,
+                    //         ...newRenderedMsgs
+                    //     ]
+                    // );
+
+                    // setRawMsgs(newMsgs);
 
                     setData([]);
+
+                    /*
+                    // track correctness
+                    if (res.answer_is_correct === "true") {
+                        setCorrectSoFar(correctSoFar + 1);
+                    }
+
+                    // track current step
+                    if (correctSoFar === THRESHOLD) {
+                        if (currentStep === 'analyze') {
+                            // end the conversation
+                            // TODO backend support?
+                            const msg = 'Congratulations! You have successfully completed reviewing the concept! Would you like to review another concept?';
+
+                        }
+                        const idx = bloomsTaxonomy.indexOf(currentStep);
+                        const newStep = bloomsTaxonomy[idx + 1];
+                        setCurrentStep(newStep);
+                        setCorrectSoFar(0);
+                    }
+                    */
 
                     if (res['current_step'] === "") {
                         setCurrentStep("understand");
                     } else {
                         if (res['current_step'] !== currentStep) {
-                            const idxCurrent = bloomTaxonomy.indexOf(currentStep);
-                            const idxNew = bloomTaxonomy.indexOf(res['current_step']);
+                            const idxCurrent = bloomsTaxonomy.indexOf(currentStep);
+                            const idxNew = bloomsTaxonomy.indexOf(res['current_step']);
                             if (idxNew < idxCurrent) {
                                 // stage moves forward, should reset it on the client side
                                 setCorrectSoFar(0);
@@ -139,13 +163,13 @@ export default function ChatInterface() {
                                 setQuestions(undefined);
                                 setCurrentStep(res['current_step']);
                             }
-                        }   
+                        }
                     }
-    
+
                     if (res['answer_is_correct'] === "true") {
                         setCorrectSoFar(correctSoFar + 1);
                     }
-    
+
                     // if (res['questions']) {
                     //     setQuestions(res['questions']);
                     // }
@@ -299,4 +323,38 @@ function getRenderedMsg(data: ChatResponseStream[]) {
     } else {
         return tutorResponse;
     }
+}
+
+function updateMsgList(msg: string, role: string, msgData: Message[], existingMsgElems: React.JSX.Element[], setMsgs: (msgs: React.JSX.Element[]) => void, setRawMsgs: (msgs: Message[]) => void) {
+
+    const msgElem = role === "AI Tutor" ?
+        (
+            <MessageOther
+                message={msg}
+                timestamp=""
+                displayName="AI Tutor"
+                avatarDisp={true}
+            />
+        ) : (
+            <MessageSelf
+                message={msg}
+                timestamp=""
+                displayName="User"
+                avatarDisp={false}
+            />
+        );
+
+    msgData.push({
+        type: role === "AI Tutor" ? 'bot' : 'user',
+        message: msg
+    });
+
+    setMsgs(
+        [
+            msgElem,
+            ...existingMsgElems
+        ]
+    );
+
+    setRawMsgs(msgData);
 }
