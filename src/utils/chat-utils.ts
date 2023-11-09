@@ -12,13 +12,9 @@ const responseKeys = [
     'answer_is_correct'
 ];
 
-const questionKeys = [
-    'question'
-]
-
 export async function getQuestion(
     req: QuestionRequestStream,
-    setRawQuestionData: (value: React.SetStateAction<any[]>) => void
+    setRawQuestionData?: (value: React.SetStateAction<any[]>) => void
 ): Promise<any> {
     const url = `${mainURL}${getQuestionURL}`;
 
@@ -42,14 +38,24 @@ export async function getQuestion(
                     },
                     onmessage(ev) {
                         if (ev.data === "<END>") {
+                            response = response.replace(/<SLASH>n/g, '\n');
                             console.log(response);
                             resolve(response);
                             return;
                         }
-                        response += ev.data;
-                        console.log(ev.data)
+                        response += ev.data
+                        // TODO: stream back to the client? is it necessary?
+                        console.log(response)
 
-                        setRawQuestionData((data) => [...data, response]);
+                        // setRawQuestionData((data) => {
+                        //     const res = {
+                        //         ...(data[data.length - 1])
+                        //     };
+
+                        //     res[req.bloom_level] = response;
+                            
+                        //     return [...data, res]
+                        // });
                     },
                     onerror(err) {
                         console.error(err)
@@ -130,7 +136,7 @@ export async function getResponse(
                                 resolve(parsedResponse);
                                 return;
                             }
-                            response += ev.data;
+                            response += ev.data.replace(/<SLASH>/g, '\\');
                             parsedResponse = completeJSON(response, responseKeys);
                             // console.log("parsedResponse", parsedResponse);
 

@@ -27,7 +27,8 @@ const initMsgs = [
 ]
 
 // TODO: the back end supports up to analyze at the moment
-const bloomsTaxonomy = ['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'];
+const bloomsTaxonomy = ['remember', 'understand', 'apply', 'analyze'];
+
 
 // hard coded threshold for all steps
 const THRESHOLD = 1;
@@ -40,19 +41,72 @@ export default function ChatInterface() {
 
     const [lastQuestion, setLastQuestion] = useState(undefined);
 
+    const [questionToDisplay, setQuestionToDisplay] = useState('');
+
     const [rawMsgs, setRawMsgs] = useState(initRawMsgs);
 
     const [msgs, setMsgs] = useState(initMsgs);
 
     const [rawResponseData, setRawResponseData] = useState([]);
 
-    const [rawQuestionData, setRawQuestionData] = useState([]);
+    const [rawQuestionData, setRawQuestionData] = useState(undefined);
 
     const [showSpinner, setShowSpinner] = useState(false);
 
     const [correctSoFar, setCorrectSoFar] = useState(0);
 
     const spinner = <LoadingSpinner />;
+
+    useEffect(() => {
+        getInitQuestionByLevel(bloomsTaxonomy)
+            .then((res) => {
+                setRawQuestionData(res);
+            });
+
+    }, []);
+
+    useEffect(() => {
+        const question = getQuestionToShow(questionLevel, rawQuestionData);
+        if (question) {
+            console.log('question: ', question);
+            // TODO: typewriter effect?
+
+            /*
+            const useTypewriter = (text, speed = 50) => {
+  const [displayText, setDisplayText] = useState('');
+
+  useEffect(() => {
+    let i = 0;
+    const typingInterval = setInterval(() => {
+      if (i < text.length) {
+        setDisplayText(prevText => prevText + text.charAt(i));
+        i++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, speed);
+
+    return () => {
+      clearInterval(typingInterval);
+    };
+  }, [text, speed]);
+
+  return displayText;
+};
+*/
+
+            // final rendering and reset state
+
+            // setQuestionToDisplay(question);
+            const _ = updateMsgList(question, 'AI Tutor', rawMsgs, msgs, setMsgs, setRawMsgs);
+
+            setLastQuestion(question);
+            setPreviousQuestions([...previousQuestions, question]);
+        }
+    }, [questionLevel, rawQuestionData]);
+
+    // TODO: another useEffect hook to set dependency -- when certain state changes, grab new questions
+
 
     const addMsg = async (msg: string) => {
 
@@ -87,7 +141,6 @@ export default function ChatInterface() {
                 message: msg
             }
         ];
-
 
 
 
@@ -154,7 +207,7 @@ export default function ChatInterface() {
                         setQuestionLevel(newQuestionLevel);
                     }
 
-                    console.log(newQuestionLevel, correctSoFar);
+                    // console.log(newQuestionLevel, correctSoFar);
 
                     if (res.question_completed === "true" && newQuestionLevel || newQuestionLevel && !questionLevel) {
                         // stream question if just reaching a new level or completing a question
@@ -166,23 +219,25 @@ export default function ChatInterface() {
                             include_prefix: true
                         }
 
-                        console.log('questionReq: ', questionReq);
+                        // TODO: generate a new question at the given level
 
-                        getQuestion(questionReq, setRawQuestionData)
-                            .then((res) => {
-                                const question = res;
-                                console.log('question: ', question);
+                        // console.log('questionReq: ', questionReq);
 
-                                // final rendering and reset state
-                                const _ = updateMsgList(question, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
-                                setRawQuestionData([]);
+                        // getQuestion(questionReq, setRawQuestionData)
+                        //     .then((res) => {
+                        //         const question = res;
+                        //         console.log('question: ', question);
 
-                                setLastQuestion(question);
-                                setPreviousQuestions([...previousQuestions, question]);
-                            })
-                            .catch((err) => {
-                                console.error(err);
-                            });
+                        //         // final rendering and reset state
+                        //         const _ = updateMsgList(question, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
+                        //         setRawQuestionData([]);
+
+                        //         setLastQuestion(question);
+                        //         setPreviousQuestions([...previousQuestions, question]);
+                        //     })
+                        //     .catch((err) => {
+                        //         console.error(err);
+                        //     });
                     }
 
                 })
@@ -282,6 +337,7 @@ export default function ChatInterface() {
     }
 
 
+
     return (
         <div className="chatContainer" key="chat-container">
             <Paper className="paper" elevation={0}>
@@ -289,11 +345,11 @@ export default function ChatInterface() {
                     <div className="messages" key="messages">
                         {showSpinner ? spinner : <></>}
                         {/* most recent AI message */}
+                        {/* TODO: might want to delay showing question until response is done */}
                         {
-                            rawQuestionData.length > 0 ?
+                            questionToDisplay !== '' ?
                                 <MessageOther
-                                    // message={data.join("")}
-                                    message={getRenderedQuestion(rawQuestionData)}
+                                    message={questionToDisplay}
                                     timestamp=""
                                     displayName="AI Tutor"
                                     avatarDisp={true}
@@ -305,7 +361,6 @@ export default function ChatInterface() {
 
                             rawResponseData.length > 0 ?
                                 <MessageOther
-                                    // message={data.join("")}
                                     message={getRenderedResponse(rawResponseData, questionLevel)}
                                     timestamp=""
                                     displayName="AI Tutor"
@@ -317,7 +372,11 @@ export default function ChatInterface() {
                         {msgs}
                     </div>
                 </Paper>
-                <TextInput onAddMsg={addMsg} />
+                {
+                    rawQuestionData ?
+                        <TextInput onAddMsg={addMsg} /> :
+                        <h3>Initializing the chat. Please wait...</h3>
+                }
             </Paper>
         </div>
     )
@@ -355,9 +414,16 @@ function renderTutorResponse(tutorResponse: string, followUpQuestion: string, qu
     }
 }
 
-function getRenderedQuestion(data: string[]) {
-    const question = data[data.length - 1];
-    return question;
+function getQuestionToShow(questionLevel: string | undefined, rawQuestionData: { [key: string]: string[] } | undefined) {
+    // do not show question when there are no initial questions or no questions at a given level
+    console.log(rawQuestionData, questionLevel);
+    if (!rawQuestionData || !questionLevel || !(questionLevel in rawQuestionData) || rawQuestionData[questionLevel].length === 0) {
+        return undefined;
+    }
+
+    // show the most recent question at a given level
+    const questions = rawQuestionData[questionLevel];
+    return questions[questions.length - 1];
 }
 
 function updateMsgList(
@@ -403,6 +469,27 @@ function updateMsgList(
     setRawMsgs(msgData);
 
     return [newMsgElems, msgData];
+}
+
+async function getInitQuestionByLevel(taxonomy: string[]) {
+    const res = {}
+    const questions = await Promise.all(
+        taxonomy.map(async (level) => {
+            const questionReq: QuestionRequestStream = {
+                bloom_level: level,
+                previous_questions: [],
+                include_prefix: true
+            }
+            return await getQuestion(questionReq);
+        })
+    );
+
+    for (let i = 0; i < taxonomy.length; i++) {
+        const level = taxonomy[i];
+        res[level] = [questions[i]];
+    }
+
+    return res;
 }
 
 // async function streamQuestion(
