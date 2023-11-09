@@ -41,8 +41,6 @@ export default function ChatInterface() {
 
     const [lastQuestion, setLastQuestion] = useState(undefined);
 
-    const [questionToDisplay, setQuestionToDisplay] = useState('');
-
     const [rawMsgs, setRawMsgs] = useState(initRawMsgs);
 
     const [msgs, setMsgs] = useState(initMsgs);
@@ -346,17 +344,6 @@ export default function ChatInterface() {
                         {showSpinner ? spinner : <></>}
                         {/* most recent AI message */}
                         {/* TODO: might want to delay showing question until response is done */}
-                        {
-                            questionToDisplay !== '' ?
-                                <MessageOther
-                                    message={questionToDisplay}
-                                    timestamp=""
-                                    displayName="AI Tutor"
-                                    avatarDisp={true}
-                                    key="ai-question"
-                                />
-                                : <></>
-                        }
                         {
 
                             rawResponseData.length > 0 ?
