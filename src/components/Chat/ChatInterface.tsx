@@ -135,7 +135,8 @@ export default function ChatInterface() {
             getResponse(req, lastQuestion ?? '', setRawResponseData)
                 .then((res) => {
                     if ('tutor_response' in res && res.tutor_response !== '') {
-                        const msg = renderTutorResponse(res.tutor_response, res.follow_up_question, res.question_completed, questionLevel);
+                        const levelUndecided = questionLevel === undefined;
+                        const msg = renderTutorResponseFinal(res.tutor_response, res.follow_up_question, res.question_completed, levelUndecided);
                         console.log("msg: ", msg)
 
                         const [msgElems, msgData] = updateMsgList(msg, 'AI Tutor', newMsgs, newRenderedMsgs, setMsgs, setRawMsgs);
@@ -207,7 +208,7 @@ export default function ChatInterface() {
 
                             rawResponseData.length > 0 ?
                                 <MessageOther
-                                    message={getRenderedResponse(rawResponseData, questionLevel)}
+                                    message={renderTutorResponseRealTime(rawResponseData)}
                                     timestamp=""
                                     displayName="AI Tutor"
                                     avatarDisp={true}
@@ -243,17 +244,14 @@ function getHistory(msgs: Message[]) {
     return history;
 }
 
-function getRenderedResponse(data: ChatResponseStream[], questionLevel: string | undefined) {
+function renderTutorResponseRealTime(data: ChatResponseStream[]) {
     const tutorResponse = data[data.length - 1].tutor_response;
-    // const followUpQuestion = data[data.length - 1].follow_up_question;
-    // const questionCompleted = data[data.length - 1].question_completed;
-    // return renderTutorResponse(tutorResponse, followUpQuestion, questionCompleted, questionLevel);
     return tutorResponse;
 }
 
 
-function renderTutorResponse(tutorResponse: string, followUpQuestion: string, questionCompleted: string, questionLevel: string | undefined) {
-    if (followUpQuestion !== '' && questionCompleted === 'false' && questionLevel) {
+function renderTutorResponseFinal(tutorResponse: string, followUpQuestion: string, questionCompleted: string, levelUndecided: boolean) {
+    if (followUpQuestion !== '' && (levelUndecided || questionCompleted === 'false' && !levelUndecided)) {
         return tutorResponse + '\n\n' + followUpQuestion;
     } else {
         return tutorResponse;
