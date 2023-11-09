@@ -37,8 +37,6 @@ export default function ChatInterface() {
 
     const [questionLevel, setQuestionLevel] = useState(undefined);
 
-    const [previousQuestions, setPreviousQuestions] = useState([]);
-
     const [lastQuestion, setLastQuestion] = useState(undefined);
 
     const [rawMsgs, setRawMsgs] = useState(initRawMsgs);
@@ -49,11 +47,7 @@ export default function ChatInterface() {
 
     const [rawQuestionData, setRawQuestionData] = useState(undefined);
 
-    const [showSpinner, setShowSpinner] = useState(false);
-
     const [correctSoFar, setCorrectSoFar] = useState(0);
-
-    const spinner = <LoadingSpinner />;
 
     useEffect(() => {
         getInitQuestionByLevel(bloomsTaxonomy)
@@ -63,47 +57,33 @@ export default function ChatInterface() {
 
     }, []);
 
+    // when one question at a level is used, grab one new question for that level
+    useEffect(() => {
+        if (lastQuestion && lastQuestion.length > 0) {
+            getNewQuestionByLevel(questionLevel, rawQuestionData[questionLevel])
+                .then((res) => {
+                    const newRawQuestionData = {
+                        ...rawQuestionData
+                    };
+                    newRawQuestionData[questionLevel].push(res);
+                    setRawQuestionData(newRawQuestionData);
+                });
+        }
+    }, [lastQuestion]);
+
+    // show a new question when a new level is reached, or when a question at a given level is completed
     useEffect(() => {
         const question = getQuestionToShow(questionLevel, rawQuestionData);
-        if (question) {
+        if (question && correctSoFar < THRESHOLD) {
             console.log('question: ', question);
             // TODO: typewriter effect?
 
-            /*
-            const useTypewriter = (text, speed = 50) => {
-  const [displayText, setDisplayText] = useState('');
-
-  useEffect(() => {
-    let i = 0;
-    const typingInterval = setInterval(() => {
-      if (i < text.length) {
-        setDisplayText(prevText => prevText + text.charAt(i));
-        i++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, speed);
-
-    return () => {
-      clearInterval(typingInterval);
-    };
-  }, [text, speed]);
-
-  return displayText;
-};
-*/
-
-            // final rendering and reset state
-
-            // setQuestionToDisplay(question);
+            // final rendering and setting states
             const _ = updateMsgList(question, 'AI Tutor', rawMsgs, msgs, setMsgs, setRawMsgs);
 
             setLastQuestion(question);
-            setPreviousQuestions([...previousQuestions, question]);
         }
-    }, [questionLevel, rawQuestionData]);
-
-    // TODO: another useEffect hook to set dependency -- when certain state changes, grab new questions
+    }, [questionLevel, correctSoFar]);
 
 
     const addMsg = async (msg: string) => {
@@ -125,11 +105,6 @@ export default function ChatInterface() {
         // TODO refactor out
         if (questionLevel) {
             req.current_step = questionLevel;
-        }
-
-        // TODO refactor out
-        if (previousQuestions) {
-            req.questions = JSON.stringify(previousQuestions);
         }
 
         const newMsgs: Message[] = [
@@ -159,177 +134,62 @@ export default function ChatInterface() {
 
             getResponse(req, lastQuestion ?? '', setRawResponseData)
                 .then((res) => {
-                    const msg = renderTutorResponse(res.tutor_response, res.follow_up_question, res.question_completed, questionLevel);
-                    console.log("msg: ", msg)
+                    if ('tutor_response' in res && res.tutor_response !== '') {
+                        const msg = renderTutorResponse(res.tutor_response, res.follow_up_question, res.question_completed, questionLevel);
+                        console.log("msg: ", msg)
 
-                    const [msgElems, msgData] = updateMsgList(msg, 'AI Tutor', newMsgs, newRenderedMsgs, setMsgs, setRawMsgs);
+                        const [msgElems, msgData] = updateMsgList(msg, 'AI Tutor', newMsgs, newRenderedMsgs, setMsgs, setRawMsgs);
 
-                    setRawResponseData([]);
+                        setRawResponseData([]);
 
 
-                    let newCorrectSoFar = correctSoFar;
-                    // track correctness
-                    if (questionLevel && res.answer_is_correct === "true") {
-                        newCorrectSoFar += 1;
-                        setCorrectSoFar(newCorrectSoFar);
-                    }
+                        let newCorrectSoFar = correctSoFar;
 
-                    // update current step if correctSoFar reaches threashold
-                    if (newCorrectSoFar === THRESHOLD) {
-                        const idxCurrent = bloomsTaxonomy.indexOf(questionLevel);
-                        const idxNew = idxCurrent + 1;
-                        if (questionLevel === 'analyze' || idxNew === bloomsTaxonomy.length) {
-                            // the backend only reasonably supports steps up to `analyze`; 
-                            // however, user might reach `create` if their first question is determined to be at that level
-                            // we should end the conversation whenever (1) the step naturally reaches beyond 'analyze' or (2) the user finishes 'create'
-
-                            // TODO backend support?
-                            const msg = 'Congratulations! You have successfully completed reviewing the concept! Would you like to review another concept?';
-                            const _ = updateMsgList(msg, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
-                            // TODO reset question level?
-                        } else {
-                            const idx = bloomsTaxonomy.indexOf(questionLevel);
-                            const newStep = bloomsTaxonomy[idx + 1];
-                            setQuestionLevel(newStep);
-                            setCorrectSoFar(0);
-                            // reset previous questions
-                            setPreviousQuestions([]);
-                            // reset last question
-                            setLastQuestion(undefined);
-                        }
-                    }
-
-                    let newQuestionLevel = questionLevel;
-                    if (!questionLevel && res.question_level !== "") {
-                        newQuestionLevel = res.question_level;
-                        setQuestionLevel(newQuestionLevel);
-                    }
-
-                    // console.log(newQuestionLevel, correctSoFar);
-
-                    if (res.question_completed === "true" && newQuestionLevel || newQuestionLevel && !questionLevel) {
-                        // stream question if just reaching a new level or completing a question
-                        // TODO refactor using abstraction
-
-                        const questionReq: QuestionRequestStream = {
-                            bloom_level: newQuestionLevel,
-                            previous_questions: previousQuestions,
-                            include_prefix: true
+                        // track correctness if current question is completed
+                        // then the useEffect hook will show the next question on the level if threshold has not been met
+                        if (questionLevel && res.question_completed === "true") {
+                            newCorrectSoFar += 1;
+                            setCorrectSoFar(newCorrectSoFar);
                         }
 
-                        // TODO: generate a new question at the given level
+                        // update current level if correctSoFar reaches threashold
+                        if (newCorrectSoFar === THRESHOLD) {
+                            const idxCurrent = bloomsTaxonomy.indexOf(questionLevel);
+                            const idxNew = idxCurrent + 1;
+                            if (questionLevel === 'analyze' || idxNew === bloomsTaxonomy.length) {
+                                // the backend only reasonably supports steps up to `analyze`; 
+                                // however, user might reach `create` if their first question is determined to be at that level
+                                // we should end the conversation whenever (1) the step naturally reaches beyond 'analyze' or (2) the user finishes 'create'
 
-                        // console.log('questionReq: ', questionReq);
+                                // TODO backend support?
+                                const msg = 'Congratulations! You have successfully completed reviewing the concept! Would you like to review another concept?';
+                                const _ = updateMsgList(msg, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
 
-                        // getQuestion(questionReq, setRawQuestionData)
-                        //     .then((res) => {
-                        //         const question = res;
-                        //         console.log('question: ', question);
+                                // reset question level
+                                setQuestionLevel(undefined);
+                            } else {
+                                // the useEffect hook will automatically show a new question at the new level 
+                                const idx = bloomsTaxonomy.indexOf(questionLevel);
+                                const newStep = bloomsTaxonomy[idx + 1];
+                                setQuestionLevel(newStep);
+                                setCorrectSoFar(0);
+                            }
+                        }
 
-                        //         // final rendering and reset state
-                        //         const _ = updateMsgList(question, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
-                        //         setRawQuestionData([]);
-
-                        //         setLastQuestion(question);
-                        //         setPreviousQuestions([...previousQuestions, question]);
-                        //     })
-                        //     .catch((err) => {
-                        //         console.error(err);
-                        //     });
+                        // only initialize question Level if it is not set yet;
+                        if (!questionLevel && res.question_level !== "") {
+                            setQuestionLevel(res.question_level);
+                        }
+                    } else {
+                        alert('No tutor response received. Please try again.')
                     }
 
                 })
                 .catch((err) => {
                     console.error(err);
                 });
-
-
         } else {
-            // code for the non-streaming (outdated) backend
-            // TODO refactor out
-            if (rawMsgs.length > 1) {
-                req.history = getHistory(rawMsgs);
-            }
-
-            const newRenderedMsgs = [
-                <MessageSelf
-                    message={msg}
-                    timestamp=""
-                    displayName="User"
-                    avatarDisp={false}
-                />,
-                ...msgs
-            ]
-
-            setMsgs(newRenderedMsgs);
-
-            setShowSpinner(true);
-
-
-            const res = await getResponse(req);
-
-            if (res) {
-
-                // if res.correct then increment question count
-                // if question count exceeds threshold then change step
-                newMsgs.push({
-                    type: 'bot',
-                    message: res.message
-                });
-                setMsgs(
-                    [
-                        <MessageOther
-                            message={res.message}
-                            timestamp=""
-                            displayName="AI Tutor"
-                            avatarDisp={true}
-                        />,
-                        ...newRenderedMsgs
-                    ]
-                );
-
-                setRawMsgs(newMsgs);
-
-                setShowSpinner(false);
-
-                if (!res['current_step']) {
-                    alert('Error: current_step not found in response.');
-                    console.error(res);
-                } else {
-                    if (res['current_step'] !== questionLevel) {
-                        setCorrectSoFar(0);
-                        setPreviousQuestions(undefined);
-                    }
-                    setQuestionLevel(res['current_step']);
-                }
-
-                if (res['correct'] === true) {
-                    setCorrectSoFar(correctSoFar + 1);
-                }
-
-                if (res['questions']) {
-                    setPreviousQuestions(res['questions']);
-                }
-
-            } else {
-                newMsgs.push({
-                    type: 'bot',
-                    message: "AI is offline at the moment. Please try again later."
-                });
-                setRawMsgs(newMsgs);
-                setMsgs(
-                    [
-                        <MessageOther
-                            message={"AI is offline at the moment. Please try again later."}
-                            timestamp=""
-                            displayName="AI Tutor"
-                            avatarDisp={true}
-                        />,
-                        ...newRenderedMsgs
-                    ]
-                );
-                setShowSpinner(false);
-            }
+            alert("Only streaming mode is supported at the moment.")
         }
 
     }
@@ -341,7 +201,6 @@ export default function ChatInterface() {
             <Paper className="paper" elevation={0}>
                 <Paper id="style-1" className="messagesBody" key="messages-body">
                     <div className="messages" key="messages">
-                        {showSpinner ? spinner : <></>}
                         {/* most recent AI message */}
                         {/* TODO: might want to delay showing question until response is done */}
                         {
@@ -479,30 +338,11 @@ async function getInitQuestionByLevel(taxonomy: string[]) {
     return res;
 }
 
-// async function streamQuestion(
-//     questionReq: QuestionRequestStream,
-//     msgData: Message[],
-//     msgElems: React.JSX.Element[],
-//     previousQuestions: string[],
-//     setRawQuestionData: (data: QuestionResponseStream[]) => void,
-//     setMsgs: (msgs: React.JSX.Element[]) => void,
-//     setRawMsgs: (msgs: Message[]) => void,
-//     setLastQuestion: (question: string) => void,
-//     setPreviousQuestions: (questions: string[]) => void,
-// ): Promise<any> {
-//     getQuestion(questionReq, setRawQuestionData)
-//         .then((res) => {
-//             const question = res.question;
-//             console.log('question: ', question);
-
-//             // final rendering and reset state
-//             const _ = updateMsgList(question, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
-//             setRawQuestionData([]);
-
-//             setLastQuestion(question);
-//             setPreviousQuestions([...previousQuestions, question]);
-//         })
-//         .catch((err) => {
-//             console.error(err);
-//         });
-// }
+async function getNewQuestionByLevel(level: string, previousQuestions: string[]) {
+    const questionReq: QuestionRequestStream = {
+        bloom_level: level,
+        previous_questions: previousQuestions,
+        include_prefix: true
+    }
+    return await getQuestion(questionReq);
+}

@@ -89,16 +89,6 @@ export async function getResponse(
 
     console.log(url)
 
-    // let url = `${mainURL}${getResponseURL}?&user=${escapeHTML(user)}&password=${escapeHTML(password)}&message=${escapeHTML(message)}`;
-    // if (timestamp) {
-    //     url += `&timestamp=${timestamp}`;
-    // }
-    // if (history) {
-    //     url += `&history=${escapeHTML(history)}`;
-    // }
-
-    // console.log(url)
-
     try {
 
         if (useStreaming) {
