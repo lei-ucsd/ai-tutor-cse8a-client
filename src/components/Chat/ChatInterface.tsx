@@ -4,10 +4,10 @@ import { Paper } from "@mui/material";
 import { TextInput } from "./TextInput";
 import { MessageOther, MessageSelf } from "./Message";
 import { useState } from "react";
-import LoadingSpinner from "../UtilElements/LoadingSpinner";
-import { ChatRequest, ChatRequestStream, ChatResponseStream, getResponse, Message, useStreaming } from "@site/src/utils";
+import { ChatRequest, ChatResponseStream, getResponse, Message, useStreaming } from "@site/src/utils";
 import { QuestionRequestStream } from "@site/src/utils/data-model";
 import { getQuestion } from "@site/src/utils/chat-utils";
+import { QUESTIONS } from "@site/src/initialQuestions";
 
 
 const initRawMsgs: Message[] = [
@@ -30,8 +30,16 @@ const initMsgs = [
 const bloomsTaxonomy = ['remember', 'understand', 'apply', 'analyze'];
 
 
-// hard coded threshold for all steps
+// hard-coded threshold for all steps
 const THRESHOLD = 1;
+
+// hard-coded concept for review
+// going forward, the concept should be determined by the user's input at the beginning of a conversation
+const CONCEPT = 'conditionals';
+
+// initial questions for the chosen concept
+const initQuestions = QUESTIONS[CONCEPT];
+
 
 export default function ChatInterface() {
 
@@ -45,17 +53,10 @@ export default function ChatInterface() {
 
     const [rawResponseData, setRawResponseData] = useState([]);
 
-    const [rawQuestionData, setRawQuestionData] = useState(undefined);
+    const [rawQuestionData, setRawQuestionData] = useState(initQuestions);
 
     const [correctSoFar, setCorrectSoFar] = useState(0);
 
-    useEffect(() => {
-        getInitQuestionByLevel(bloomsTaxonomy)
-            .then((res) => {
-                setRawQuestionData(res);
-            });
-
-    }, []);
 
     // when one question at a level is used, grab one new question for that level
     useEffect(() => {

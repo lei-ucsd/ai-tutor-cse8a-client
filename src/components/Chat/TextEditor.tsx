@@ -15,7 +15,6 @@ export default function TextEditor({ id, className, value, onChange }: PropType)
 
     return (
         // TODO: auto switching between light and dark mode based on site settings
-        // TODO: styling
         <div
             id={id}
             className={`container ${className}`}
@@ -25,12 +24,6 @@ export default function TextEditor({ id, className, value, onChange }: PropType)
                 maxWidth: '100%',
             }}
             onKeyDown={(e) => {
-
-                // if (e.key === '`') {
-                //     e.preventDefault()
-                //     // editor.addMark('code', 'kk');
-                //     // editor.insertText('`');
-                // }
 
                 // support tabbing
                 if (e.key === 'Tab') {
