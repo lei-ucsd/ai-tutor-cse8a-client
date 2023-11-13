@@ -12,9 +12,9 @@ const responseKeys = [
     'answer_is_correct'
 ];
 
+// TODO: documentation
 export async function getQuestion(
     req: QuestionRequestStream,
-    setRawQuestionData?: (value: React.SetStateAction<any[]>) => void
 ): Promise<any> {
     const url = `${mainURL}${getQuestionURL}`;
 
@@ -44,18 +44,6 @@ export async function getQuestion(
                             return;
                         }
                         response += ev.data
-                        // TODO: stream back to the client? is it necessary?
-                        console.log(response)
-
-                        // setRawQuestionData((data) => {
-                        //     const res = {
-                        //         ...(data[data.length - 1])
-                        //     };
-
-                        //     res[req.bloom_level] = response;
-                            
-                        //     return [...data, res]
-                        // });
                     },
                     onerror(err) {
                         console.error(err)
@@ -77,6 +65,7 @@ export async function getQuestion(
 }
 
 
+// TODO: documentation
 export async function getResponse(
     req: ChatRequest,
     lastQuestion?: string,
@@ -87,15 +76,12 @@ export async function getResponse(
 
     let url = `${mainURL}${getResponseURL}`;
 
-    console.log(url)
-
     try {
 
         if (useStreaming) {
             const { user: name, history: chat_history } = req;
 
             const chat_history_text = chat_history ?? '';
-            // TODO: figure out how to add the last question
             const streamReq = { name, chat_history: chat_history_text, last_question: lastQuestion, include_prefix: true } as ChatRequestStream;
 
             console.log(streamReq);
@@ -128,7 +114,6 @@ export async function getResponse(
                             }
                             response += ev.data.replace(/<SLASH>/g, '\\');
                             parsedResponse = completeJSON(response, responseKeys);
-                            // console.log("parsedResponse", parsedResponse);
 
                             setData((data) => [...data, parsedResponse]);
                         },
@@ -142,7 +127,6 @@ export async function getResponse(
             });
 
 
-            // TODO fix types here (for error cases)
             const data = await fetchPromise;
             return data;
 
@@ -171,6 +155,7 @@ export async function getResponse(
 
 }
 
+// TODO: documentation
 export function escapeHTML(text: string) {
     if (!text) {
         console.error("No text given")
@@ -185,6 +170,7 @@ export function escapeHTML(text: string) {
         .replace(/ /g, "%20")
 }
 
+// TODO: documentation
 function completeJSON(incompleteJSON: string, defaultValues: string[]): ChatResponseStream {
     const jsonStr = untruncateJson(incompleteJSON);
     let res = undefined;
