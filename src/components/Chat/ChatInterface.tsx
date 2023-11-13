@@ -58,7 +58,11 @@ export default function ChatInterface() {
     const [correctSoFar, setCorrectSoFar] = useState(0);
 
 
-    // when one question at a level is used, grab one new question for that level
+    // We use a `useEffect' hook to enable the following side effect
+    // without any rerendering
+    // only when the value of `lastQuestion` is changed,
+    // i.e., when one question at a level is used:
+    // We will request the backend to generate a one new question for that level
     useEffect(() => {
         if (lastQuestion && lastQuestion.length > 0) {
             getNewQuestionByLevel(questionLevel, rawQuestionData[questionLevel])
@@ -72,7 +76,10 @@ export default function ChatInterface() {
         }
     }, [lastQuestion]);
 
-    // show a new question when a new level is reached, or when a question at a given level is completed
+    // We use a `useEffect' hook to enable the following side effect
+    // only when the values of `questionLevel` and `correctSoFar` are both changed,
+    // i.e., when the user answered a question correctly or moved onto a new question level:
+    // we show a (already generated) new question when a new level is reached, or when a question at a given level is completed
     useEffect(() => {
         const question = getQuestionToShow(questionLevel, rawQuestionData);
         if (question && correctSoFar < THRESHOLD) {
@@ -137,7 +144,6 @@ export default function ChatInterface() {
                 .then((res) => {
                     if ('tutor_response' in res && res.tutor_response !== '') {
                         const msg = renderTutorResponseFinal(res.tutor_response, res.follow_up_question, res.question_completed, questionLevel);
-                        console.log("msg: ", msg)
 
                         const [msgElems, msgData] = updateMsgList(msg, 'AI Tutor', newMsgs, newRenderedMsgs, setMsgs, setRawMsgs);
 
@@ -157,12 +163,11 @@ export default function ChatInterface() {
                         if (newCorrectSoFar === THRESHOLD) {
                             const idxCurrent = bloomsTaxonomy.indexOf(questionLevel);
                             const idxNew = idxCurrent + 1;
-                            if (questionLevel === 'analyze' || idxNew === bloomsTaxonomy.length) {
-                                // the backend only reasonably supports steps up to `analyze`; 
+                            if (idxNew === bloomsTaxonomy.length) {
+                                // the backend only reasonably supports steps up to `analyze` or whichever is the last step; 
                                 // however, user might reach `create` if their first question is determined to be at that level
                                 // we should end the conversation whenever (1) the step naturally reaches beyond 'analyze' or (2) the user finishes 'create'
 
-                                // TODO backend support?
                                 const msg = 'Congratulations! You have successfully completed reviewing the concept! Would you like to review another concept?';
                                 const _ = updateMsgList(msg, 'AI Tutor', msgData, msgElems, setMsgs, setRawMsgs);
 
@@ -230,6 +235,7 @@ export default function ChatInterface() {
 }
 
 
+// TODO: documentation
 function getHistory(msgs: Message[]) {
     let history = "\n";
     for (let i = 0; i < msgs.length; i++) {
@@ -244,12 +250,14 @@ function getHistory(msgs: Message[]) {
     return history;
 }
 
+// TODO: documentation
 function renderTutorResponseRealTime(data: ChatResponseStream[]) {
     const tutorResponse = data[data.length - 1].tutor_response;
     return tutorResponse;
 }
 
 
+// TODO: documentation
 function renderTutorResponseFinal(tutorResponse: string, followUpQuestion: string, questionCompleted: string, questionLevel: string | undefined) {
     if (followUpQuestion !== '' && (questionCompleted === 'false' && questionLevel)) {
         return tutorResponse + '\n\n' + followUpQuestion;
@@ -258,9 +266,9 @@ function renderTutorResponseFinal(tutorResponse: string, followUpQuestion: strin
     }
 }
 
+// TODO: documentation
 function getQuestionToShow(questionLevel: string | undefined, rawQuestionData: { [key: string]: string[] } | undefined) {
     // do not show question when there are no initial questions or no questions at a given level
-    console.log(rawQuestionData, questionLevel);
     if (!rawQuestionData || !questionLevel || !(questionLevel in rawQuestionData) || rawQuestionData[questionLevel].length === 0) {
         return undefined;
     }
@@ -270,6 +278,8 @@ function getQuestionToShow(questionLevel: string | undefined, rawQuestionData: {
     return questions[questions.length - 1];
 }
 
+// TODO: documentation
+// TODO: use (reverse) mapping to render raw messages into JSX elements
 function updateMsgList(
     msg: string,
     role: string,
@@ -315,27 +325,7 @@ function updateMsgList(
     return [newMsgElems, msgData];
 }
 
-async function getInitQuestionByLevel(taxonomy: string[]) {
-    const res = {}
-    const questions = await Promise.all(
-        taxonomy.map(async (level) => {
-            const questionReq: QuestionRequestStream = {
-                bloom_level: level,
-                previous_questions: [],
-                include_prefix: true
-            }
-            return await getQuestion(questionReq);
-        })
-    );
-
-    for (let i = 0; i < taxonomy.length; i++) {
-        const level = taxonomy[i];
-        res[level] = [questions[i]];
-    }
-
-    return res;
-}
-
+// TODO: documentation
 async function getNewQuestionByLevel(level: string, previousQuestions: string[]) {
     const questionReq: QuestionRequestStream = {
         bloom_level: level,
