@@ -136,8 +136,7 @@ export default function ChatInterface() {
             getResponse(req, lastQuestion ?? '', setRawResponseData)
                 .then((res) => {
                     if ('tutor_response' in res && res.tutor_response !== '') {
-                        const levelUndecided = questionLevel === undefined;
-                        const msg = renderTutorResponseFinal(res.tutor_response, res.follow_up_question, res.question_completed, levelUndecided);
+                        const msg = renderTutorResponseFinal(res.tutor_response, res.follow_up_question, res.question_completed, questionLevel);
                         console.log("msg: ", msg)
 
                         const [msgElems, msgData] = updateMsgList(msg, 'AI Tutor', newMsgs, newRenderedMsgs, setMsgs, setRawMsgs);
@@ -251,8 +250,8 @@ function renderTutorResponseRealTime(data: ChatResponseStream[]) {
 }
 
 
-function renderTutorResponseFinal(tutorResponse: string, followUpQuestion: string, questionCompleted: string, levelUndecided: boolean) {
-    if (followUpQuestion !== '' && (levelUndecided || questionCompleted === 'false' && !levelUndecided)) {
+function renderTutorResponseFinal(tutorResponse: string, followUpQuestion: string, questionCompleted: string, questionLevel: string | undefined) {
+    if (followUpQuestion !== '' && (questionCompleted === 'false' && questionLevel)) {
         return tutorResponse + '\n\n' + followUpQuestion;
     } else {
         return tutorResponse;
