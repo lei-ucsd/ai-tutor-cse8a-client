@@ -82,6 +82,10 @@ export default function ChatInterface() {
                     };
                     newRawQuestionData[questionLevel].push(res);
                     setRawQuestionData(newRawQuestionData);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    // don't do anything if the request fails
                 });
         }
     }, [lastQuestion]);
@@ -240,7 +244,11 @@ export default function ChatInterface() {
 }
 
 
-// TODO: documentation
+/**
+ * Get the history of the conversation in a string format.
+ * @param msgs A list of messages in their raw representation forms ordered chronologically.
+ * @returns A string concatenating all messages and their roles in the list.
+ */
 function getHistory(msgs: Message[]) {
     let history = "\n";
     for (let i = 0; i < msgs.length; i++) {
@@ -255,14 +263,28 @@ function getHistory(msgs: Message[]) {
     return history;
 }
 
-// TODO: documentation
+
+/**
+ * Used to return the most recent AI response in real time for streaming effect.
+ * @param data A list of JSON/ChatResponseStream objects representing the AI's response to the user's input.
+ * @returns The `tutor_response' field of the most recent JSON/ChatResponseStream object in the list.
+ */
 function renderTutorResponseRealTime(data: ChatResponseStream[]) {
     const tutorResponse = data[data.length - 1].tutor_response;
     return tutorResponse;
 }
 
 
-// TODO: documentation
+/**
+ * Used to return the final AI response to the user's input.
+ * @param tutorResponse The `tutor_response` field of the last JSON/ChatResponseStream object.
+ * @param followUpQuestion The `follow_up_question` field of the last JSON/ChatResponseStream object.
+ * @param questionCompleted The `question_completed` field of the last JSON/ChatResponseStream object.
+ * @param questionLevel Current value of the stateful variable `questionLevel`.
+ * @returns A string that is the final rendering of the AI's response to the user's input, 
+ *          optionally including the follow-up question if the current question is not completed
+ *          and the current question level is valid.
+ */
 function renderTutorResponseFinal(tutorResponse: string, followUpQuestion: string, questionCompleted: string, questionLevel: string | undefined) {
     if (followUpQuestion !== '' && (questionCompleted === 'false' && questionLevel)) {
         return tutorResponse + '\n\n' + followUpQuestion;
@@ -271,7 +293,15 @@ function renderTutorResponseFinal(tutorResponse: string, followUpQuestion: strin
     }
 }
 
-// TODO: documentation
+
+/**
+ * Used to return the most recent question at a given level when applicable.
+ * @param questionLevel The current value of the stateful variable `questionLevel`.
+ * @param rawQuestionData The current value of the stateful variable `rawQuestionData`, 
+ *                          which, if defined, is a JSON object where the keys are valid bloom's levels,
+ *                           and the values are lists of AI-generated questions for that level.
+ * @returns The most recent question at the given level, or undefined if the level is invalid or there are no questions at that level.
+ */
 function getQuestionToShow(questionLevel: string | undefined, rawQuestionData: { [key: string]: string[] } | undefined) {
     // do not show question when there are no initial questions or no questions at a given level
     if (!rawQuestionData || !questionLevel || !(questionLevel in rawQuestionData) || rawQuestionData[questionLevel].length === 0) {
@@ -283,7 +313,18 @@ function getQuestionToShow(questionLevel: string | undefined, rawQuestionData: {
     return questions[questions.length - 1];
 }
 
-// TODO: documentation
+
+/**
+ * Used to update the rendered and raw representations for the chat history.
+ * @param msg A string that represents the most recent message to be added to the chat history UI.
+ * @param role The role that the message belongs to, either 'AI Tutor' or 'User'.
+ * @param msgData Raw data representation for the chat history.
+ * @param existingMsgElems Rendered representation for the chat history.
+ * @param setMsgs React hook for updating the rendered representation for the chat history.
+ * @param setRawMsgs React hook for updating the raw data representation for the chat history.
+ * @returns A two-element list, where the first element is the updated rendered representation for the chat history,
+ *          and the second element is the updated raw data representation for the chat history.
+ */
 // TODO: use (reverse) mapping to render raw messages into JSX elements
 function updateMsgList(
     msg: string,
@@ -330,7 +371,13 @@ function updateMsgList(
     return [newMsgElems, msgData];
 }
 
-// TODO: documentation
+
+/**
+ * Used to request a new question from the backend.
+ * @param level The level of the bloom's taxonomy for which a new question is to be requested.
+ * @param previousQuestions A list of questions that have been asked at the given level.
+ * @returns A new question at the given level.
+ */
 async function getNewQuestionByLevel(level: string, previousQuestions: string[]) {
     const questionReq: QuestionRequestStream = {
         bloom_level: level,
