@@ -12,7 +12,11 @@ const responseKeys = [
     'answer_is_correct'
 ];
 
-// TODO: documentation
+/**
+ * Sends a request to the server for obtaining a question at the specified bloom's level.
+ * @param req Request to be sent to the server for obtaining a question at the specified bloom's level.
+ * @returns a Promise that, when resolved, returns a string containing the generated question.
+ */
 export async function getQuestion(
     req: QuestionRequestStream,
 ): Promise<any> {
@@ -65,87 +69,74 @@ export async function getQuestion(
 }
 
 
-// TODO: documentation
+/**
+ * Sends a request to the server for obtaining an AI response.
+ * @param req Request to be sent to the server for obtaining an AI response.
+ * @param lastQuestion An optional string that specifies the last question the AI asked the user.
+ * @param setData An optional function that sets the state of the data to be displayed in the chat window.
+ * @returns A promise that, when resolved, returns a ChatResponseStream object containing the AI's response.
+ */
 export async function getResponse(
     req: ChatRequest,
     lastQuestion?: string,
     setData?: (value: React.SetStateAction<any[]>) => void)
-    : Promise<any> {
-
-    // TODO fix types
+    : Promise<ChatResponseStream> {
 
     let url = `${mainURL}${getResponseURL}`;
 
     try {
 
-        if (useStreaming) {
-            const { user: name, history: chat_history } = req;
+        const { user: name, history: chat_history } = req;
 
-            const chat_history_text = chat_history ?? '';
-            const streamReq = { name, chat_history: chat_history_text, last_question: lastQuestion, include_prefix: true } as ChatRequestStream;
+        const chat_history_text = chat_history ?? '';
+        const streamReq = { name, chat_history: chat_history_text, last_question: lastQuestion, include_prefix: true } as ChatRequestStream;
 
-            console.log(streamReq);
+        console.log(streamReq);
 
-            let response = "";
-            let parsedResponse = undefined;
+        let response = "";
+        let parsedResponse = undefined;
 
-            const fetchPromise = new Promise((resolve, reject) => {
+        const fetchPromise: Promise<ChatResponseStream> = new Promise((resolve, reject) => {
 
-                (async () => {
+            (async () => {
 
-                    await fetchEventSource(url, {
-                        method: 'POST',
-                        headers: {
-                            Accept: "text/event-stream",
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(streamReq),
-                        async onopen(res) {
-                            if (res.status >= 400 && res.status < 500 && res.status !== 429) {
-                                console.error("Client-side error ", res);
-                                reject(res);
-                            }
-                        },
-                        onmessage(ev) {
-                            if (ev.data === "<END>") {
-                                console.log(parsedResponse);
-                                resolve(parsedResponse);
-                                return;
-                            }
-                            response += ev.data.replace(/<SLASH>/g, '\\');
-                            parsedResponse = completeJSON(response, responseKeys);
+                await fetchEventSource(url, {
+                    method: 'POST',
+                    headers: {
+                        Accept: "text/event-stream",
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(streamReq),
+                    async onopen(res) {
+                        if (res.status >= 400 && res.status < 500 && res.status !== 429) {
+                            console.error("Client-side error ", res);
+                            reject(res);
+                        }
+                    },
+                    onmessage(ev) {
+                        if (ev.data === "<END>") {
+                            console.log(parsedResponse);
+                            resolve(parsedResponse);
+                            return;
+                        }
+                        response += ev.data.replace(/<SLASH>/g, '\\');
+                        parsedResponse = completeJSON(response, responseKeys);
 
-                            setData((data) => [...data, parsedResponse]);
-                        },
-                        onerror(err) {
-                            console.error(err)
-                            reject(err);
-                        },
-                    });
-                })();
+                        setData((data) => [...data, parsedResponse]);
+                    },
+                    onerror(err) {
+                        console.error(err)
+                        reject(err);
+                    },
+                });
+            })();
 
-            });
-
-
-            const data = await fetchPromise;
-            return data;
+        });
 
 
-        } else {
+        const data = await fetchPromise;
+        return data;
 
-            console.log(req);
-            const response = await axios.post(url, {
-                data: req, // {user: xxx, password: xxx, message: xxx, timestamp: xxx, history: xxx}
-                headers: {
-                    // "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "GET,POST",
-                    "Access-Control-Allow-Headers": "Access-Control-Allow-Methods, Access-Control-Allow-Origin",
-                }
-            });
-            const data = JSON.parse(response.data);
-            console.log(data)
-            return data;
-        }
 
     } catch (e) {
         console.error(e);
@@ -155,22 +146,13 @@ export async function getResponse(
 
 }
 
-// TODO: documentation
-export function escapeHTML(text: string) {
-    if (!text) {
-        console.error("No text given")
-        return
-    }
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\?/g, "&quest;")
-        .replace(/\n/g, "__________")
-        .replace(/ /g, "%20")
-}
 
-// TODO: documentation
+/**
+ * Autocompletes a JSON string with default values for the keys specified in defaultValues.
+ * @param incompleteJSON The possibly incomplete JSON string to be autocompleted streamed from the server.
+ * @param defaultValues A set of keys to be written into the JSON string if they are not already present.
+ * @returns a completed JSON object, specifically in the format of a ChatResponseStream object.
+ */
 function completeJSON(incompleteJSON: string, defaultValues: string[]): ChatResponseStream {
     const jsonStr = untruncateJson(incompleteJSON);
     let res = undefined;
