@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { useStreaming, mainURL, getResponseURL, getQuestionURL, ChatRequest, ChatRequestStream, ChatResponseStream } from './index';
+import { mainURL, getResponseURL, getQuestionURL, ChatRequest, ChatRequestStream, ChatResponseStream } from './index';
 import untruncateJson from "untruncate-json";
 import { QuestionRequestStream } from './data-model';
 
