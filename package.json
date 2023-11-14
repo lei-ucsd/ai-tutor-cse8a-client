@@ -22,6 +22,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mdx-js/react": "^1.6.22",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@milkdown/core": "^7.3.0",
     "@milkdown/ctx": "^7.3.0",
     "@milkdown/preset-commonmark": "^7.3.0",
@@ -41,11 +42,13 @@
     "pyodide": "^0.23.4",
     "react": "^17.0.2",
     "react-cookie": "^6.1.0",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "untruncate-json": "^0.0.1"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.4.1",
     "@tsconfig/docusaurus": "^1.0.5",
+    "dotenv": "^16.3.1",
     "prop-types": "^15.8.1",
     "react-markdown": "^8.0.7",
     "react-syntax-highlighter": "^15.5.0",

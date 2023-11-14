@@ -2074,6 +2074,11 @@
   dependencies:
     "@nevware21/ts-utils" ">= 0.9.4 < 2.x"
 
+"@microsoft/fetch-event-source@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@microsoft/fetch-event-source/-/fetch-event-source-2.0.1.tgz#9ceecc94b49fbaa15666e38ae8587f64acce007d"
+  integrity sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==
+
 "@milkdown/core@^7.3.0":
   version "7.3.0"
   resolved "https://registry.yarnpkg.com/@milkdown/core/-/core-7.3.0.tgz#f4e2ffa07025db4f32b2cab253a40a94f45115e4"
@@ -5053,7 +5058,7 @@ dot-prop@^5.2.0:
   dependencies:
     is-obj "^2.0.0"
 
-dotenv@^16.3:
+dotenv@^16.3, dotenv@^16.3.1:
   version "16.3.1"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.3.1.tgz#369034de7d7e5b120972693352a3bf112172cc3e"
   integrity sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==
@@ -10387,6 +10392,11 @@ unpipe@1.0.0, unpipe@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/unpipe/-/unpipe-1.0.0.tgz#b2bf4ee8514aae6165b4817829d21b2ef49904ec"
   integrity sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==
+
+untruncate-json@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/untruncate-json/-/untruncate-json-0.0.1.tgz#a225e87d5d669c9ec6e04fc8de349e65b6cc2e9e"
+  integrity sha512-4W9enDK4X1y1s2S/Rz7ysw6kDuMS3VmRjMFg7GZrNO+98OSe+x5Lh7PKYoVjy3lW/1wmhs6HW0lusnQRHgMarA==
 
 update-browserslist-db@^1.0.11:
   version "1.0.11"

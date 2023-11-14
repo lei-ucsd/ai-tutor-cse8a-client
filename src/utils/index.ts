@@ -1,8 +1,15 @@
-import { ChatRequest, ChatResponse, Message } from "./data-model";
+import { ChatRequest, ChatResponse, Message, ChatResponseStream, ChatRequestStream } from "./data-model";
 import { getResponse } from "./chat-utils";
+import siteConfig from '@generated/docusaurus.config';
 
-export const mainURL = 'https://gilpasternak35.pythonanywhere.com';
-// export const getResponseURL = '/get-response';
-export const getResponseURL = '/';
+const LOCAL = Number(siteConfig.customFields.LOCAL as string);
+const LOCAL_SERVER = siteConfig.customFields.LOCAL_SERVER as string;
 
-export {ChatRequest, ChatResponse, Message, getResponse};
+// flag for using streaming vs not
+
+export const mainURL = LOCAL ? LOCAL_SERVER : 'https://lei.ucsd.edu:5445';
+export const getResponseURL = '/response';
+export const getQuestionURL = '/question';
+
+
+export {ChatRequest, ChatResponse, ChatResponseStream, ChatRequestStream, Message, getResponse};

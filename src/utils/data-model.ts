@@ -10,9 +10,30 @@ export type ChatRequest = {
     questions?: string
 }
 
+export type ChatRequestStream = {
+    name: string,
+    chat_history?: string,
+    last_question?: string,
+    include_prefix: boolean
+}
+
 export type ChatResponse = {
     message: string,
     timestamp: number
+}
+
+export type ChatResponseStream = {
+    tutor_response: string,
+    follow_up_question: string,
+    question_completed: string,
+    question_level: string,
+    answer_is_correct: string
+}
+
+export type QuestionRequestStream = {
+    bloom_level: string,
+    previous_questions: string[],
+    include_prefix: boolean
 }
 
 export type Message = {

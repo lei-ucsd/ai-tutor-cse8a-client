@@ -6,7 +6,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 
 
 export function MessageOther(props) {
-    const message = props.message ? props.message : "no message";
+    const message = props.message ? props.message : "";
     const timestamp = props.timestamp ? props.timestamp : "";
     const photoURL = props.photoURL;
     const displayName = props.displayName ? props.displayName : "no name";

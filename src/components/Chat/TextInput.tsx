@@ -1,7 +1,6 @@
 import React from 'react'
 import SendIcon from '@mui/icons-material/Send';
-import { TextField, IconButton, TextareaAutosize } from '@mui/material'
-import Textarea from '@mui/joy/Textarea';
+import { IconButton } from '@mui/material'
 import { useState } from 'react';
 import TextEditor from './TextEditor';
 
@@ -17,7 +16,6 @@ export function TextInput({ onAddMsg }) {
                     className="wrapText"
                     value={value}
                     onChange={(x) => {
-                        console.log(x);
                         setValue(x)
                     }}
                 />
