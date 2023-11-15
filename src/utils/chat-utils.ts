@@ -11,6 +11,10 @@ const responseKeys = [
     'answer_is_correct'
 ];
 
+const questionKeys = [
+    'question'
+]
+
 /**
  * Sends a request to the server for obtaining a question at the specified bloom's level.
  * @param req Request to be sent to the server for obtaining a question at the specified bloom's level.
@@ -23,6 +27,7 @@ export async function getQuestion(
 
     try {
         let response = "";
+        let parsedResponse = undefined;
         const fetchPromise = new Promise((resolve, reject) => {
             (async () => {
 
@@ -41,12 +46,13 @@ export async function getQuestion(
                     },
                     onmessage(ev) {
                         if (ev.data === "<END>") {
-                            response = response.replace(/<SLASH>n/g, '\n');
-                            console.log(response);
-                            resolve(response);
+                            console.log(parsedResponse);
+                            resolve(parsedResponse['question']);
                             return;
                         }
-                        response += ev.data
+                        response += ev.data.replace(/<SLASH>/g, '\\');
+                        console.log(response)
+                        parsedResponse = completeJSON(response, questionKeys);
                     },
                     onerror(err) {
                         console.error(err)
@@ -150,23 +156,23 @@ export async function getResponse(
  * Autocompletes a JSON string with default values for the keys specified in defaultValues.
  * @param incompleteJSON The possibly incomplete JSON string to be autocompleted streamed from the server.
  * @param defaultValues A set of keys to be written into the JSON string if they are not already present.
- * @returns a completed JSON object, specifically in the format of a ChatResponseStream object.
+ * @returns a completed JSON object.
  */
-function completeJSON(incompleteJSON: string, defaultValues: string[]): ChatResponseStream {
+function completeJSON(incompleteJSON: string, defaultValues: string[]): {[k: string]: string} {
     const jsonStr = untruncateJson(incompleteJSON);
-    let res = undefined;
+    console.log('jsonStr', jsonStr)
+    let res = {};
     try {
         res = JSON.parse(jsonStr);
     } catch (e) {
         console.warn('Error parsing JSON', e);
-        res = {};
-    }
-
-    for (const key of defaultValues) {
-        if (!(key in res)) {
-            res[key] = '';
+    } finally {
+        for (const key of defaultValues) {
+            if (!(key in res)) {
+                res[key] = '';
+            }
         }
+    
+        return res;
     }
-
-    return res as ChatResponseStream;
 }
