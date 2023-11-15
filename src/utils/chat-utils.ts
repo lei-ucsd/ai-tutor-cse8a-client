@@ -51,7 +51,6 @@ export async function getQuestion(
                             return;
                         }
                         response += ev.data.replace(/<SLASH>/g, '\\');
-                        console.log(response)
                         parsedResponse = completeJSON(response, questionKeys);
                     },
                     onerror(err) {
@@ -160,7 +159,6 @@ export async function getResponse(
  */
 function completeJSON(incompleteJSON: string, defaultValues: string[]): {[k: string]: string} {
     const jsonStr = untruncateJson(incompleteJSON);
-    console.log('jsonStr', jsonStr)
     let res = {};
     try {
         res = JSON.parse(jsonStr);
