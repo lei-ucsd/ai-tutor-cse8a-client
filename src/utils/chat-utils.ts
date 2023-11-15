@@ -18,17 +18,17 @@ const questionKeys = [
 /**
  * Sends a request to the server for obtaining a question at the specified bloom's level.
  * @param req Request to be sent to the server for obtaining a question at the specified bloom's level.
- * @returns a Promise that, when resolved, returns a string containing the generated question.
+ * @returns a Promise that, when resolved, returns a JSON object with one key `question`, the value of which is the generated question.
  */
 export async function getQuestion(
     req: QuestionRequestStream,
-): Promise<any> {
+): Promise<{[key: string] : string}> {
     const url = `${mainURL}${getQuestionURL}`;
 
     try {
         let response = "";
         let parsedResponse = undefined;
-        const fetchPromise = new Promise((resolve, reject) => {
+        const fetchPromise: Promise<{[key: string]: string}> = new Promise((resolve, reject) => {
             (async () => {
 
                 await fetchEventSource(url, {
