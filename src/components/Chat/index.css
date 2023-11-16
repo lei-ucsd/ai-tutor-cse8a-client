@@ -36,6 +36,7 @@
     /* height: calc(100% - 200px); */
     /* display: flex;
     flex-direction: column-reverse; */
+    /* overflow-anchor: auto !important; */
 }
 
 .messages {
@@ -45,6 +46,8 @@
     /* height: calc(100% - 200px); */
     display: flex;
     flex-direction: column-reverse;
+    overflow-anchor: auto !important;
+
 }
 
 .messageRow {
