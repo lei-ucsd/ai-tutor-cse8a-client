@@ -1,5 +1,5 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { mainURL, getResponseURL, getQuestionURL, ChatRequest, ChatRequestStream, ChatResponseStream } from './index';
+import { mainURL, getResponseURL, getQuestionURL, ChatRequest, ChatRequestStream, ChatResponseStream, LOCAL } from './index';
 import untruncateJson from "untruncate-json";
 import { QuestionRequestStream } from './data-model';
 
@@ -22,13 +22,13 @@ const questionKeys = [
  */
 export async function getQuestion(
     req: QuestionRequestStream,
-): Promise<{[key: string] : string}> {
+): Promise<{ [key: string]: string }> {
     const url = `${mainURL}${getQuestionURL}`;
 
     try {
         let response = "";
         let parsedResponse = undefined;
-        const fetchPromise: Promise<{[key: string]: string}> = new Promise((resolve, reject) => {
+        const fetchPromise: Promise<{ [key: string]: string }> = new Promise((resolve, reject) => {
             (async () => {
 
                 await fetchEventSource(url, {
@@ -46,7 +46,6 @@ export async function getQuestion(
                     },
                     onmessage(ev) {
                         if (ev.data === "<END>") {
-                            console.log(parsedResponse);
                             resolve(parsedResponse['question']);
                             return;
                         }
@@ -119,7 +118,6 @@ export async function getResponse(
                     },
                     onmessage(ev) {
                         if (ev.data === "<END>") {
-                            console.log(parsedResponse);
                             resolve(parsedResponse);
                             return;
                         }
@@ -157,20 +155,23 @@ export async function getResponse(
  * @param defaultValues A set of keys to be written into the JSON string if they are not already present.
  * @returns a completed JSON object.
  */
-function completeJSON(incompleteJSON: string, defaultValues: string[]): {[k: string]: string} {
+function completeJSON(incompleteJSON: string, defaultValues: string[]): { [k: string]: string } {
     const jsonStr = untruncateJson(incompleteJSON);
     let res = {};
     try {
         res = JSON.parse(jsonStr);
     } catch (e) {
-        console.warn('Error parsing JSON', e);
+        // show the parsing error when in local dev mode
+        if (LOCAL) {
+            console.warn('Error parsing JSON', e);
+        }
     } finally {
         for (const key of defaultValues) {
             if (!(key in res)) {
                 res[key] = '';
             }
         }
-    
+
         return res;
     }
 }

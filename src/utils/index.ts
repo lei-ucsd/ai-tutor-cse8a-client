@@ -2,7 +2,7 @@ import { ChatRequest, ChatResponse, Message, ChatResponseStream, ChatRequestStre
 import { getResponse } from "./chat-utils";
 import siteConfig from '@generated/docusaurus.config';
 
-const LOCAL = Number(siteConfig.customFields.LOCAL as string);
+export const LOCAL = Number(siteConfig.customFields.LOCAL as string);
 const LOCAL_SERVER = siteConfig.customFields.LOCAL_SERVER as string;
 
 // flag for using streaming vs not
