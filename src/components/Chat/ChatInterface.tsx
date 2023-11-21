@@ -40,6 +40,12 @@ const CONCEPT = 'conditionals';
 // initial questions for the chosen concept
 const initQuestions = QUESTIONS[CONCEPT];
 
+const BRIDGES = [
+    `Here's a practice question to help you with `,
+    `Let's practice `,
+    `Let's work on `,
+]
+
 
 export default function ChatInterface() {
 
@@ -101,7 +107,8 @@ export default function ChatInterface() {
             // TODO: typewriter effect?
 
             // final rendering and setting states
-            const _ = updateMsgList(question, 'AI Tutor', rawMsgs, msgs, setMsgs, setRawMsgs);
+            const bridge = getBridgeMsg(questionLevel, CONCEPT, correctSoFar === 0);
+            const _ = updateMsgList(bridge + question, 'AI Tutor', rawMsgs, msgs, setMsgs, setRawMsgs);
 
             setLastQuestion(question);
         }
@@ -385,4 +392,13 @@ async function getNewQuestionByLevel(level: string, previousQuestions: string[])
         include_prefix: true
     }
     return await getQuestion(questionReq);
+}
+
+
+function getBridgeMsg(questionLevel: string, concept: string, firstQuestion: boolean) {
+    const template = BRIDGES[Math.floor(Math.random() * BRIDGES.length)];
+    const level = questionLevel === 'analyze' ? 'analyzing' : `${questionLevel}ing`;
+    const again = firstQuestion ? '' : ' again';
+    const bridge = `${template}${level} ${concept}${again}.\n\n`;
+    return bridge;
 }
