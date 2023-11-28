@@ -73,6 +73,10 @@ export default function ChatInterface() {
     // number of correct responses at a given level
     const [correctSoFar, setCorrectSoFar] = useState(0);
 
+    // a boolean flag to indicate whether the user has just reset the conversation via upload
+    // only set to `true` after uploading a history file
+    const [justReset, setJustReset] = useState(false);
+
 
     // We use a `useEffect' hook to enable the following side effect
     // without any rerendering
@@ -102,7 +106,7 @@ export default function ChatInterface() {
     // we show a (already generated) new question when a new level is reached, or when a question at a given level is completed
     useEffect(() => {
         const question = getQuestionToShow(questionLevel, rawQuestionData);
-        if (question && correctSoFar < THRESHOLD) {
+        if (!justReset && question && correctSoFar < THRESHOLD) {
             console.log('question: ', question);
             // TODO: typewriter effect?
 
@@ -162,6 +166,9 @@ export default function ChatInterface() {
         getResponse(req, lastQuestion ?? '', setRawResponseData)
             .then((res) => {
                 if ('tutor_response' in res && res.tutor_response !== '') {
+                    // clear the justReset flag if it has been set
+                    setJustReset(false);
+
                     const msg = renderTutorResponseFinal(res.tutor_response, res.follow_up_question, res.question_completed, questionLevel);
 
                     const [msgElems, msgData] = updateMsgList(msg, 'AI Tutor', newMsgs, newRenderedMsgs, setMsgs, setRawMsgs);
@@ -218,6 +225,26 @@ export default function ChatInterface() {
     }
 
 
+    const saveHistory = (filename: string) => {
+        const data = {
+            msgs: rawMsgs,
+            questionLevel: questionLevel ?? 'undefined',
+            lastQuestion: lastQuestion ?? 'undefined',
+            correctSoFar: correctSoFar,
+            rawQuestionData: rawQuestionData,
+        };
+
+        const downloadableData = encodeURIComponent(JSON.stringify(data, null, 2));
+        let element: HTMLAnchorElement = document.getElementById('downloadable') as HTMLAnchorElement;
+        if (element === null) {
+            element = document.createElement('a');
+        }
+
+        element.href = `data:application/json;charset=utf-8,${downloadableData}`;
+        element.download = filename;
+        element.click();
+    }
+
 
     return (
         <div className="chatContainer" key="chat-container">
@@ -242,7 +269,7 @@ export default function ChatInterface() {
                 </Paper>
                 {
                     rawQuestionData ?
-                        <TextInput onAddMsg={addMsg} /> :
+                        <TextInput onAddMsg={addMsg} onSaveHistory={saveHistory}/> :
                         <h3>Initializing the chat. Please wait...</h3>
                 }
             </Paper>

@@ -1,11 +1,11 @@
 import React from 'react'
 import SendIcon from '@mui/icons-material/Send';
-import { IconButton } from '@mui/material'
+import { Button, IconButton } from '@mui/material'
 import { useState } from 'react';
 import TextEditor from './TextEditor';
 
 
-export function TextInput({ onAddMsg }) {
+export function TextInput({ onAddMsg, onSaveHistory }) {
     const [value, setValue] = useState("");
 
     return (
@@ -55,6 +55,19 @@ export function TextInput({ onAddMsg }) {
                         color: "var(--ifm-color-primary)"
                     }} />
                 </IconButton>
+                <div className="aux-buttons">
+                    <Button
+                        sx={{ bgcolor: "var(--ifm-color-primary)", color: "white", margin: "5px" }}
+                        onClick={() => onSaveHistory('ai-tutor-history.json')}
+                    >
+                        Download
+                    </Button>
+                    <Button
+                        sx={{ bgcolor: "var(--ifm-color-primary)", color: "white", margin: "5px" }}
+                    >
+                        Upload
+                    </Button>
+                </div>
             </div>
         </>
     )
