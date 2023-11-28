@@ -5,7 +5,7 @@ import { TextInput } from "./TextInput";
 import { MessageOther, MessageSelf } from "./Message";
 import { useState } from "react";
 import { ChatRequest, ChatResponseStream, getResponse, Message } from "@site/src/utils";
-import { QuestionRequestStream } from "@site/src/utils/data-model";
+import { QuestionRequestStream, ChatHistory } from "@site/src/utils/data-model";
 import { getQuestion } from "@site/src/utils/chat-utils";
 import { QUESTIONS } from "@site/src/initialQuestions";
 
@@ -250,13 +250,7 @@ export default function ChatInterface() {
      * Restore chat history and related information from a parsed JSON object.
      * @param data a parsed JSON object that contains chat history and related information.
      */
-    const loadHistory = (data: {
-        msgs: Message[],
-        questionLevel: string,
-        lastQuestion: string,
-        correctSoFar: number,
-        rawQuestionData: any
-    }) => {
+    const loadHistory = (data: ChatHistory) => {
         const msgs: Message[] = data.msgs;
         const questionLevel: string = data.questionLevel;
         const lastQuestion: string = data.lastQuestion;

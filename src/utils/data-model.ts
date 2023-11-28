@@ -40,3 +40,12 @@ export type Message = {
     type: 'user' | 'bot',
     message: string,
 }
+
+
+export type ChatHistory = {
+    msgs: Message[],
+    questionLevel: string,
+    lastQuestion: string,
+    correctSoFar: number,
+    rawQuestionData: any
+}

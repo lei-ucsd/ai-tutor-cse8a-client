@@ -3,6 +3,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { Button, IconButton } from '@mui/material'
 import { useState } from 'react';
 import TextEditor from './TextEditor';
+import { ChatHistory } from '@site/src/utils/data-model';
 
 
 export function TextInput({ onAddMsg, onSaveHistory, onLoadHistory }) {
@@ -25,8 +26,13 @@ export function TextInput({ onAddMsg, onSaveHistory, onLoadHistory }) {
 
     const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
-            const parsedData = await readJsonFile(event.target.files[0])
-            onLoadHistory(parsedData);
+            try {
+                const parsedData = (await readJsonFile(event.target.files[0])) as ChatHistory;
+                onLoadHistory(parsedData);
+            } catch (e) {
+                console.error(e);
+                alert('Invalid JSON format. File must be a valid chat history.');
+            }
         }
     };
 
