@@ -194,3 +194,10 @@
 .logoutBtn {
     float: right
 }
+
+.aux-buttons {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
