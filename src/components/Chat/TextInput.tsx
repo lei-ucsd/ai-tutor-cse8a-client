@@ -5,8 +5,30 @@ import { useState } from 'react';
 import TextEditor from './TextEditor';
 
 
-export function TextInput({ onAddMsg, onSaveHistory }) {
+export function TextInput({ onAddMsg, onSaveHistory, onLoadHistory }) {
     const [value, setValue] = useState("");
+
+    const readJsonFile = (file: Blob) => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader()
+
+            fileReader.onload = event => {
+                if (event.target) {
+                    resolve(JSON.parse(event.target.result as string))
+                }
+            }
+
+            fileReader.onerror = error => reject(error)
+            fileReader.readAsText(file)
+        });
+    };
+
+    const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files) {
+            const parsedData = await readJsonFile(event.target.files[0])
+            onLoadHistory(parsedData);
+        }
+    };
 
     return (
         <>
@@ -64,9 +86,11 @@ export function TextInput({ onAddMsg, onSaveHistory }) {
                     </Button>
                     <Button
                         sx={{ bgcolor: "var(--ifm-color-primary)", color: "white", margin: "5px" }}
+                        onClick={() => document.getElementById('load-chat-history')?.click()}
                     >
                         Upload
                     </Button>
+                    <input id='load-chat-history' type="file" accept=".json,application/json" onChange={onFileUpload} hidden />
                 </div>
             </div>
         </>

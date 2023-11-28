@@ -245,6 +245,49 @@ export default function ChatInterface() {
         element.click();
     }
 
+    const loadHistory = (data: {
+        msgs: Message[],
+        questionLevel: string,
+        lastQuestion: string,
+        correctSoFar: number,
+        rawQuestionData: any
+    }) => {
+        const msgs: Message[] = data.msgs;
+        const questionLevel: string = data.questionLevel;
+        const lastQuestion: string = data.lastQuestion;
+        const correctSoFar: number = data.correctSoFar;
+        const rawQuestionData = data.rawQuestionData;
+
+        setJustReset(true);
+        setRawMsgs(msgs);
+        setMsgs(msgs.slice(0).reverse().map((msg: Message) => {
+            if (msg.type === 'bot') {
+                return (
+                    <MessageOther
+                        message={msg.message}
+                        timestamp=""
+                        displayName="AI Tutor"
+                        avatarDisp={true}
+                    />
+                );
+            } else {
+                return (
+                    <MessageSelf
+                        message={msg.message}
+                        timestamp=""
+                        displayName="User"
+                        avatarDisp={false}
+                    />
+                );
+            }
+        }));
+
+        setQuestionLevel(questionLevel === 'undefined' ? undefined : questionLevel);
+        setLastQuestion(lastQuestion === 'undefined' ? undefined : lastQuestion);
+        setCorrectSoFar(correctSoFar);
+        setRawQuestionData(rawQuestionData);
+    }
+
 
     return (
         <div className="chatContainer" key="chat-container">
@@ -269,7 +312,7 @@ export default function ChatInterface() {
                 </Paper>
                 {
                     rawQuestionData ?
-                        <TextInput onAddMsg={addMsg} onSaveHistory={saveHistory}/> :
+                        <TextInput onAddMsg={addMsg} onSaveHistory={saveHistory} onLoadHistory={loadHistory} /> :
                         <h3>Initializing the chat. Please wait...</h3>
                 }
             </Paper>
