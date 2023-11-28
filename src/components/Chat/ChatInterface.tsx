@@ -225,6 +225,10 @@ export default function ChatInterface() {
     }
 
 
+    /**
+     * Save chat history and related informaiton to a JSON file.
+     * @param filename Filename for the JSON file to be downloaded.
+     */
     const saveHistory = (filename: string) => {
         const data = {
             msgs: rawMsgs,
@@ -235,16 +239,17 @@ export default function ChatInterface() {
         };
 
         const downloadableData = encodeURIComponent(JSON.stringify(data, null, 2));
-        let element: HTMLAnchorElement = document.getElementById('downloadable') as HTMLAnchorElement;
-        if (element === null) {
-            element = document.createElement('a');
-        }
+        const element: HTMLAnchorElement = document.getElementById('save-chat-history') as HTMLAnchorElement;
 
         element.href = `data:application/json;charset=utf-8,${downloadableData}`;
         element.download = filename;
         element.click();
     }
 
+    /**
+     * Restore chat history and related information from a parsed JSON object.
+     * @param data a parsed JSON object that contains chat history and related information.
+     */
     const loadHistory = (data: {
         msgs: Message[],
         questionLevel: string,

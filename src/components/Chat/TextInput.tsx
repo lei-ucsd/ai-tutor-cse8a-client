@@ -84,6 +84,7 @@ export function TextInput({ onAddMsg, onSaveHistory, onLoadHistory }) {
                     >
                         Download
                     </Button>
+                    <a id='save-chat-history' hidden />
                     <Button
                         sx={{ bgcolor: "var(--ifm-color-primary)", color: "white", margin: "5px" }}
                         onClick={() => document.getElementById('load-chat-history')?.click()}
