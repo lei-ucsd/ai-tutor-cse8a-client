@@ -362,7 +362,7 @@ function renderTutorResponseRealTime(data: ChatResponseStream[]) {
  *          and the current question level is valid.
  */
 function renderTutorResponseFinal(tutorResponse: string, followUpQuestion: string, questionCompleted: string, questionLevel: string | undefined) {
-    if (followUpQuestion !== '' && (questionCompleted === 'false' && questionLevel)) {
+    if (followUpQuestion !== '' && (questionCompleted === 'false' && questionLevel) && questionLevel !== 'apply') {
         return tutorResponse + '\n\n' + followUpQuestion;
     } else {
         return tutorResponse;
